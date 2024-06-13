@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/fluhus/biostuff/formats/fasta"
+	"github.com/fluhus/blini/tempdir"
 	"github.com/fluhus/gostuff/aio"
 	"github.com/fluhus/gostuff/csvdec/v2"
 )
@@ -21,7 +22,7 @@ const (
 // CompareSeqs runs FastANI on the given fastas.
 func CompareSeqs(query []*fasta.Fasta, ref []*fasta.Fasta) iter.Seq2[Entry, error] {
 	return func(yield func(Entry, error) bool) {
-		dir, err := os.MkdirTemp("/dev/shm", "fastani-")
+		dir, err := os.MkdirTemp(tempdir.Path, "fastani-")
 		if err != nil {
 			yield(Entry{}, err)
 			return
@@ -60,7 +61,7 @@ func CompareSeqs(query []*fasta.Fasta, ref []*fasta.Fasta) iter.Seq2[Entry, erro
 // CompareFiles runs FastANI on the given fasta file names.
 func CompareFiles(query []string, ref []string) iter.Seq2[Entry, error] {
 	return func(yield func(Entry, error) bool) {
-		dir, err := os.MkdirTemp("/dev/shm", "fastani-")
+		dir, err := os.MkdirTemp(tempdir.Path, "fastani-")
 		if err != nil {
 			yield(Entry{}, err)
 			return

@@ -18,6 +18,7 @@ import (
 	"github.com/fluhus/biostuff/mash"
 	"github.com/fluhus/blini/fastani"
 	"github.com/fluhus/blini/frindex"
+	"github.com/fluhus/blini/tempdir"
 	"github.com/fluhus/gostuff/gnum"
 	"github.com/fluhus/gostuff/jio"
 	"github.com/fluhus/gostuff/minhash"
@@ -146,7 +147,7 @@ func myLinClust() error {
 
 	setInterruptHandler() // For cleaning up nicely in case of interruption.
 
-	dir, err := os.MkdirTemp("/dev/shm", "blini-")
+	dir, err := os.MkdirTemp(tempdir.Path, "blini-")
 	if err != nil {
 		return err
 	}
@@ -280,7 +281,7 @@ func mySearch() error {
 
 	setInterruptHandler() // For cleaning up nicely in case of interruption.
 
-	dir, err := os.MkdirTemp("/dev/shm", "blini-")
+	dir, err := os.MkdirTemp(tempdir.Path, "blini-")
 	if err != nil {
 		return err
 	}
