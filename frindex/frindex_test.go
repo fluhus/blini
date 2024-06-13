@@ -20,7 +20,7 @@ func TestIndex_n2(t *testing.T) {
 		for _, x := range u {
 			mh.Push(x)
 		}
-		return mh.Frozen()
+		return mh
 	})
 	want := [][]int{{0, 1, 2}, {0, 1}, {0, 2}, {3}}
 	idx := New[uint64](3, 2)
@@ -48,7 +48,7 @@ func TestIndex_n1(t *testing.T) {
 		for _, x := range u {
 			mh.Push(x)
 		}
-		return mh.Frozen()
+		return mh
 	})
 	want := [][]int{{0, 2, 3}, {1, 2}, {0, 1, 2, 3}, {0, 2, 3}, {4}}
 	idx := New[uint64](3, 1)
