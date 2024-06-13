@@ -34,4 +34,3 @@ blini -h
   where each sequence is a separate species.
   Support for multiple files and multiple sequences per species
   will be added in the future.
-* Windows and MacOS support will be added in the future.
