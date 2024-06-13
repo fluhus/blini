@@ -141,3 +141,13 @@ type Entry struct {
 	PartsAligned int
 	PartsTotal   int
 }
+
+// Check checks that fastANI can be run successfully.
+func Check() error {
+	cmd := exec.Command(fastani, "-h")
+	err := cmd.Run()
+	if err != nil {
+		return fmt.Errorf("could not run fastANI: %w", err)
+	}
+	return nil
+}

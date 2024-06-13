@@ -70,6 +70,12 @@ func myLinClust() error {
 	}
 	fmt.Println("Tolerate:", *tolerate)
 
+	fmt.Print("Checking fastANI... ")
+	if err := fastani.Check(); err != nil {
+		return err
+	}
+	fmt.Println("OK")
+
 	if *inRef != "" {
 		return mySearch()
 	}
