@@ -2,6 +2,11 @@
 
 Lightweight nucleotide sequence clustering and searching.
 
+## Requirements
+
+[fastANI](https://github.com/ParBLiSS/FastANI/releases/)
+in the system PATH.
+
 ## Usage
 
 ### Clustering
@@ -21,3 +26,12 @@ blini -i query.fasta -r reference.fasta -o output.json [additional flags]
 ```
 blini -h
 ```
+
+## Limitations
+
+* Blini supports nucleotide sequences only. Amino-acids are not supported.
+* Blini runs on a single file with sequences,
+  where each sequence is a separate species.
+  Support for multiple files and multiple sequences per species
+  will be added in the future.
+* Windows and MacOS support will be added in the future.
