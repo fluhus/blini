@@ -4,21 +4,21 @@ Lightweight nucleotide sequence clustering and searching.
 
 ## Requirements
 
-[fastANI](https://github.com/ParBLiSS/FastANI/releases/)
-in the system PATH.
+[FastANI](https://github.com/ParBLiSS/FastANI/releases/)
+in the system PATH. FastANI for Windows coming soon.
 
 ## Usage
 
 ### Clustering
 
 ```
-blini -i input.fasta -o output.json [additional flags]
+blini -i input.fasta -o output.json [optional flags]
 ```
 
 ### Searching
 
 ```
-blini -i query.fasta -r reference.fasta -o output.json [additional flags]
+blini -i query.fasta -r reference.fasta -o output.json [optional flags]
 ```
 
 ### Help
