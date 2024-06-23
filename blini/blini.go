@@ -99,27 +99,14 @@ func myLinClust() error {
 
 	fmt.Println("Sorting")
 	pt = ptimer.New()
-	// Add serial numbers.
-	for i, fa := range seqs {
-		fa.Name = []byte(fmt.Sprintf("%d:%s", i, fa.Name))
-	}
-	slices.SortFunc(seqs, func(a, b *fasta.Fasta) int {
-		return cmp.Compare(len(b.Sequence), len(a.Sequence))
+	perm := snm.Slice(len(seqs), func(i int) int { return i })
+	names := snm.SliceToSlice(seqs, func(f *fasta.Fasta) string {
+		return string(f.Name)
 	})
-	// Recover and remove serial numbers.
-	var nums []int
-	var names []string
-	numre := regexp.MustCompile(`^\d+`)
-	for _, fa := range seqs {
-		m := string(numre.Find(fa.Name))
-		i, err := strconv.Atoi(m)
-		if err != nil {
-			return err
-		}
-		nums = append(nums, i)
-		names = append(names, string(fa.Name))
-		fa.Name = fa.Name[len(m)+1:]
-	}
+	slices.SortFunc(perm, func(a, b int) int {
+		return cmp.Compare(len(seqs[b].Sequence), len(seqs[a].Sequence))
+	})
+	merp := flipPerm(perm)
 	pt.Done()
 
 	fmt.Println("Indexing")
@@ -170,12 +157,12 @@ func myLinClust() error {
 
 	fmt.Println("Clustering")
 	n, nn := 0, 0
-	var clusters [][]string
+	var clusters [][]int
 	pt = ptimer.NewFunc(func(i int) string {
 		return fmt.Sprintf("%d (%dc %.0ff)",
 			i, len(clusters), float64(n)/float64(nn))
 	})
-	for i := range mhss {
+	for _, i := range perm {
 		if interrupted.Load() {
 			return fmt.Errorf("interrupted")
 		}
@@ -184,7 +171,7 @@ func myLinClust() error {
 			continue
 		}
 		nn++
-		c := []string{names[i]}
+		c := []int{i}
 		var friends []int
 		if sslen == 0 {
 			friends = idx.Query(mhss[i][0])
@@ -198,7 +185,7 @@ func myLinClust() error {
 			friends = maps.Keys(frs)
 		}
 		friends = snm.FilterSlice(friends, func(j int) bool {
-			return j > i && mhss[j] != nil // Keep only shorter sequences.
+			return merp[j] > merp[i] && mhss[j] != nil // Keep only shorter sequences.
 		})
 		n += len(friends)
 		if len(friends) == 0 {
@@ -224,14 +211,20 @@ func myLinClust() error {
 					return fmt.Errorf("bad query name: %s, %v", e.Query, e)
 				}
 				mhss[n] = nil
-				c = append(c, names[n])
+				c = append(c, n)
 			}
 		}
 		clusters = append(clusters, c)
 		pt.Inc()
 	}
 	pt.Done()
-	if err := jio.Save(*outFile, clusters); err != nil {
+	if err := jio.Save(*outFile+".bynumber.json", clusters); err != nil {
+		return err
+	}
+	byName := snm.SliceToSlice(clusters, func(a []int) []string {
+		return snm.SliceToSlice(a, func(i int) string { return names[i] })
+	})
+	if err := jio.Save(*outFile+".byname.json", byName); err != nil {
 		return err
 	}
 
@@ -246,14 +239,14 @@ func mySearch() error {
 	fmt.Println("Reading sequences")
 	pt := ptimer.New()
 	var seqs []*fasta.Fasta
-	var names []string
+	var rnames []string
 	var lens []int
 	for fa, err := range fasta.IterFile(*inRef) {
 		if err != nil {
 			return err
 		}
 		seqs = append(seqs, fa)
-		names = append(names, string(fa.Name))
+		rnames = append(rnames, string(fa.Name))
 		lens = append(lens, len(fa.Sequence))
 		pt.Inc()
 	}
@@ -304,7 +297,8 @@ func mySearch() error {
 
 	fmt.Println("Searching")
 	n, nn := 0, 0
-	matches := map[string]map[string]float64{}
+	matches := map[int]map[int]float64{}
+	var qnames []string
 	pt = ptimer.NewFunc(func(i int) string {
 		return fmt.Sprintf("%d (%dm %.1ff)",
 			i, len(matches), float64(n)/float64(nn))
@@ -320,6 +314,7 @@ func mySearch() error {
 			break
 		}
 		nn++
+		qnames = append(qnames, string(fa.Name))
 		var friends []int
 		if sslen == 0 {
 			friends = idx.Query(mash.Sequences(*sketchSize, 21, fa.Sequence))
@@ -352,7 +347,7 @@ func mySearch() error {
 				return err
 			}
 		}
-		c := map[string]float64{}
+		c := map[int]float64{}
 		if len(shorter) > 0 {
 			r := []string{faf}
 			q := snm.SliceToSlice(friends, func(i int) string {
@@ -364,8 +359,7 @@ func mySearch() error {
 				}
 				p := float64(e.PercID) * float64(e.PartsAligned) / float64(e.PartsTotal)
 				if p >= *minANIPerc {
-					// c = append(c, names[faNumber(e.Query)])
-					c[names[faNumber(e.Query)]] = p
+					c[faNumber(e.Query)] = p
 				}
 			}
 		}
@@ -383,7 +377,7 @@ func mySearch() error {
 					p = float64(e.PercID) * float64(e.PartsAligned) / float64(max(e.PartsTotal-1, e.PartsAligned))
 				}
 				if p >= *minANIPerc {
-					c[names[faNumber(e.Ref)]] = p
+					c[faNumber(e.Ref)] = p
 				}
 			}
 		}
@@ -391,13 +385,21 @@ func mySearch() error {
 			return err
 		}
 		if len(c) > 0 {
-			matches[string(fa.Name)] = c
+			matches[nn-1] = c
 		}
 		pt.Inc()
 	}
 	pt.Done()
 
-	if err := jio.Save(*outFile, matches); err != nil {
+	if err := jio.Save(*outFile+".bynumber.json", matches); err != nil {
+		return err
+	}
+	byName := snm.MapToMap(matches, func(i int, m map[int]float64) (string, map[string]float64) {
+		return qnames[i], snm.MapToMap(m, func(i int, f float64) (string, float64) {
+			return rnames[i], f
+		})
+	})
+	if err := jio.Save(*outFile+".byname.json", byName); err != nil {
 		return err
 	}
 	fmt.Println("Took", time.Since(start))
@@ -455,4 +457,12 @@ func ssmash(b []byte, sslen int) []*minhash.MinHash[uint64] {
 		bla = append(bla, mh)
 	}
 	return bla
+}
+
+func flipPerm(a []int) []int {
+	b := make([]int, len(a))
+	for i, v := range a {
+		b[v] = i
+	}
+	return b
 }
