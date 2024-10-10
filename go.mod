@@ -1,6 +1,6 @@
 module github.com/fluhus/blini
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/fluhus/biostuff v0.1.20-0.20240613144441-32d5a50e8c3c
