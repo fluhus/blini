@@ -1,8 +1,10 @@
-github.com/fluhus/biostuff v0.1.20-0.20240613144441-32d5a50e8c3c h1:NFR4m+OokiPg/XGW3S1hnmyQKqyI5dQ6FLQFWNlMfq8=
-github.com/fluhus/biostuff v0.1.20-0.20240613144441-32d5a50e8c3c/go.mod h1:4pEbtB0h5MKwWLSAIF91la//iwBRSQ8KON2x9eMzGUw=
-github.com/fluhus/gostuff v0.4.1-0.20240613145132-5147d97c9b94 h1:u+xal4EPLiTf4iKs5+u+Khn7bpwlOwzD7RXg0KeYvIU=
-github.com/fluhus/gostuff v0.4.1-0.20240613145132-5147d97c9b94/go.mod h1:dz3xGDMZnUyGQo+qy3NnGFfY8kP9MV0XziplUFgalXs=
+github.com/fluhus/biostuff v1.2.1-0.20250530221512-3d864f1a8120 h1:I5PQPTJS43yL38LJ/t8YwOfP/4Xd5KAaUxqpesRRC5E=
+github.com/fluhus/biostuff v1.2.1-0.20250530221512-3d864f1a8120/go.mod h1:K7wsBKTOOEe1RAYawnmYBxBboqxqGGxq4LN18N7O9IY=
+github.com/fluhus/gostuff v1.1.0 h1:o++ktH0zbT/StTwUpwffhjuY3W2mq8722uy29dNRhuo=
+github.com/fluhus/gostuff v1.1.0/go.mod h1:INEEKlfETwNxG5rOVcegi1peht0SyXwUZr2xIsDC0rs=
+github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
+github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
 github.com/spaolacci/murmur3 v1.1.0 h1:7c1g84S4BPRrfL5Xrdp6fOJ206sU9y293DDHaoy0bLI=
 github.com/spaolacci/murmur3 v1.1.0/go.mod h1:JwIasOWyU6f++ZhiEuf87xNszmSA2myDM2Kzu9HwQUA=
-golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8 h1:LoYXNGAShUG3m/ehNk4iFctuhGX/+R1ZpfJ4/ia80JM=
-golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8/go.mod h1:jj3sYF3dwk5D+ghuXyeI3r5MFf+NT2An6/9dOA95KSI=
+golang.org/x/exp v0.0.0-20250228200357-dead58393ab7 h1:aWwlzYV971S4BXRS9AmqwDLAD85ouC6X+pocatKY58c=
+golang.org/x/exp v0.0.0-20250228200357-dead58393ab7/go.mod h1:BHOTPb3L19zxehTsLoJXVaTktb06DFgmdW6Wb9s8jqk=

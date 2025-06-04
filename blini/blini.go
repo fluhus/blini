@@ -55,7 +55,7 @@ func main() {
 func myLinClust() error {
 	flag.Parse()
 	mash.Seed = uint32(*seed)
-	debug.SetGCPercent(33)
+	debug.SetGCPercent(20)
 
 	fmt.Println("Perc:", *minANIPerc)
 	fmt.Println("Sketch size:", *sketchSize)
@@ -85,7 +85,7 @@ func myLinClust() error {
 	fmt.Println("Reading sequences")
 	pt := ptimer.New()
 	var seqs []*fasta.Fasta
-	for fa, err := range fasta.IterFile(*inFile) {
+	for fa, err := range fasta.File(*inFile) {
 		if err != nil {
 			return err
 		}
@@ -218,13 +218,13 @@ func myLinClust() error {
 		pt.Inc()
 	}
 	pt.Done()
-	if err := jio.Save(*outFile+".bynumber.json", clusters); err != nil {
+	if err := jio.Write(*outFile+".bynumber.json", clusters); err != nil {
 		return err
 	}
 	byName := snm.SliceToSlice(clusters, func(a []int) []string {
 		return snm.SliceToSlice(a, func(i int) string { return names[i] })
 	})
-	if err := jio.Save(*outFile+".byname.json", byName); err != nil {
+	if err := jio.Write(*outFile+".byname.json", byName); err != nil {
 		return err
 	}
 
@@ -241,7 +241,7 @@ func mySearch() error {
 	var seqs []*fasta.Fasta
 	var rnames []string
 	var lens []int
-	for fa, err := range fasta.IterFile(*inRef) {
+	for fa, err := range fasta.File(*inRef) {
 		if err != nil {
 			return err
 		}
@@ -273,7 +273,7 @@ func mySearch() error {
 
 	setInterruptHandler() // For cleaning up nicely in case of interruption.
 
-	dir, err := os.MkdirTemp("", "blini-")
+	dir, err := os.MkdirTemp(".", "blini-")
 	if err != nil {
 		return err
 	}
@@ -303,7 +303,7 @@ func mySearch() error {
 		return fmt.Sprintf("%d (%dm %.1ff)",
 			i, len(matches), float64(n)/float64(nn))
 	})
-	for fa, err := range fasta.IterFile(*inFile) {
+	for fa, err := range fasta.File(*inFile) {
 		if err != nil {
 			return err
 		}
@@ -391,7 +391,7 @@ func mySearch() error {
 	}
 	pt.Done()
 
-	if err := jio.Save(*outFile+".bynumber.json", matches); err != nil {
+	if err := jio.Write(*outFile+".bynumber.json", matches); err != nil {
 		return err
 	}
 	byName := snm.MapToMap(matches, func(i int, m map[int]float64) (string, map[string]float64) {
@@ -399,7 +399,7 @@ func mySearch() error {
 			return rnames[i], f
 		})
 	})
-	if err := jio.Save(*outFile+".byname.json", byName); err != nil {
+	if err := jio.Write(*outFile+".byname.json", byName); err != nil {
 		return err
 	}
 	fmt.Println("Took", time.Since(start))

@@ -2,6 +2,7 @@ package fastani
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
 	"iter"
 	"os"
@@ -11,7 +12,7 @@ import (
 
 	"github.com/fluhus/biostuff/formats/fasta"
 	"github.com/fluhus/gostuff/aio"
-	"github.com/fluhus/gostuff/csvdec/v2"
+	"github.com/fluhus/gostuff/csvdec"
 )
 
 const (
@@ -26,10 +27,10 @@ func CompareSeqs(query []*fasta.Fasta, ref []*fasta.Fasta) iter.Seq2[Entry, erro
 			yield(Entry{}, err)
 			return
 		}
+		defer os.RemoveAll(dir)
 		qfile := filepath.Join(dir, "q")
 		rfile := filepath.Join(dir, "r")
 		ofile := filepath.Join(dir, "o")
-		defer os.RemoveAll(dir)
 
 		if err := writeFas(query, qfile); err != nil {
 			yield(Entry{}, err)
@@ -100,21 +101,9 @@ func CompareFiles(query []string, ref []string) iter.Seq2[Entry, error] {
 
 // Reads FastANI entries from its output file.
 func readANI(file string) iter.Seq2[Entry, error] {
-	return func(yield func(Entry, error) bool) {
-		f, err := aio.Open(file)
-		if err != nil {
-			yield(Entry{}, err)
-			return
-		}
-		defer f.Close()
-		r := csvdec.New(f)
+	return csvdec.File[Entry](file, func(r *csv.Reader) {
 		r.Comma = '\t'
-		for e, err := range csvdec.Iter[Entry](r) {
-			if !yield(e, err) {
-				break
-			}
-		}
-	}
+	})
 }
 
 // Writes fasta sequences to an output file.
