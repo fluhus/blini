@@ -37,7 +37,7 @@ which are often not initially known.
 In modern metagenomics, researchers often generate hundreds of thousands of
 redundant metagenome-assembled genomes (MAGs) across different samples.
 In [@pasolli2019extensive] for example, over 150,000 MAGs were
-de-replicated into about 5,000 species-level bins.
+dereplicated into about 5,000 species-level bins.
 Such clustering operations typically require many compute hours,
 which can grow quadratically with the size of the input,
 when using classical clustering algorithms.
@@ -59,7 +59,7 @@ Sourmash [@brown2016sourmash] uses fractional min-hashing in order to
 create small representations of large sequences,
 which allow for efficient searching and comparison.
 The LinClust clustering algorithm [@steinegger2018clustering] uses
-k-mer matching reduce the number of pairwise comparisons and achieve
+k-mer matching to reduce the number of pairwise comparisons and achieve
 linear scaling with the size of the input.
 
 This work, Blini, combines insights from Mash, Sourmash, and LinClust
@@ -75,7 +75,7 @@ Blini uses constant-length subsequences (k-mers) to create fingerprints for
 sequences.
 It uses the fractional min-hashing technique, similarly to Sourmash [@brown2016sourmash].
 A sliding window of length $k$ goes over the sequence and hashes each
-canonical $k$-long subsequence.
+canonical k-mer.
 This collection of hashes is often called the sequence's *sketch*.
 The lower $1/s$ hashes are retained, for an input scale parameter $s$.
 A high $s$ means fewer hashes used in downstream calculations,
@@ -191,7 +191,7 @@ of loading the reference index.
 Blini matched all 100K queries with their correct source in the reference,
 with 2444 additional non-source matches (false-positives).
 
-![Search times for the bacterial dataset. Each tool was run on randomly chosen 10 kilo-base fragments from a 10GB bacterial dataset. MMseqs is marked with an X because it was stopped manually before it could finish running.](results/search_big.png){width=40%}
+![Search times for the bacterial dataset. Each tool was run on randomly chosen 10 kilobase fragments from a 10GB bacterial dataset. MMseqs is marked with an X because it was stopped manually before it could finish running.](results/search_big.png){width=40%}
 
 ## Clustering
 
@@ -205,7 +205,7 @@ mutated counterparts.
 Each counterpart had random SNPs in 1% of its bases.
 In the fragments dataset, each of the 100 original sequences
 had 300 random fragments extracted from it,
-of length of at least 1000 bases.
+of length at least 1000 bases.
 The algorithms were expected to group each sequence with its mutated
 counterparts or with its fragments.
 Performance was evaluated using the Adjusted Rand-Index (ARI).
@@ -225,7 +225,7 @@ In terms of memory, Blini had a maximal memory footprint of 255, 129, 65, and
 38 MB using scales 25, 50, 100 and 200 respectively.
 MMseqs had a maximal memory footprint of 3072 MB (Figure 3c).
 
-![Clustering results for the SNPs dataset. Each of the 100 viral genomes from the search benchmark was used to create 100 mutant sequences with SNPs in 1% of their bases. The tools were run on this collection of 10100 genomes and were expected to cluster them into 100 groups, corresponding to the original genomes.](results/clust_snps.png){width=80%}
+![Clustering results for the SNPs dataset. Each of the 100 viral genomes from the search benchmark was used to create 100 mutant sequences with SNPs in 1% of their bases. The tools were run on this collection of 10,100 genomes and were expected to cluster them into 100 groups, corresponding to the original genomes.](results/clust_snps.png){width=80%}
 
 In the fragments dataset, MMseqs achieved an ARI of 1.0 while Blini
 achieved an ARI of 0.999, 0.999, 0.998 and 0.989 with scales 25, 50, 100 and 200
@@ -261,7 +261,7 @@ the Jaccard estimation error below 10%.
 Therefore, Blini is effective for sequences at least 25 times
 longer than the chosen scale value.
 For the default value of 100,
-sequences shorter than 2500 are likely to be falsely missed.
+sequences shorter than 2,500 bases are likely to be falsely missed.
 This can be seen in Figure 3,
 where clustering of sequences of length 1000+ bases
 was less accurate with a scale value of 200.
