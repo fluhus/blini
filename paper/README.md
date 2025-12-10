@@ -48,3 +48,10 @@ This is mostly the manuscripts, plots and benchmarking code.
 3. Add MMSeqs and Sourmash to `PATH`.
 4. Run the commands in `run_comparisons.sh` from the project's root directory,
    preferably one by one to make sure everything runs as expected.
+
+A temporary directory `testdata/fasta` will be created:
+* `vir_*.fa`: Sequences for viral search benchmark.
+* `mut_*.fa`: Mutated sequences for viral search benchmark.
+* `big.fa`: Sequences for bacterial search benchmark.
+* `clust_frag.fa`: Sequences for fragment-clustering benchmark.
+* `clust_snps.fa`: Sequences for mutated-clustering benchmark.
