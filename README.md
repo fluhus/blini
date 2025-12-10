@@ -87,6 +87,15 @@ Therefore, big reference datasets can be broken down and sketched in parallel.
 * No multi-threading at the moment.
   Still fast, innit?
 
+## Testing
+
+The
+[testdata](https://github.com/fluhus/blini/tree/main/testdata)
+directory contains mock data for testing Blini.
+The tests run automatically with each push to this repository,
+but you can also run them locally.
+See the directory's README for further instructions.
+
 ## Join the conversation
 
 Got a question? Feedback? Found a bug?
