@@ -10,6 +10,7 @@ fastadir=testdata/fasta
 
 # Generate simulated dataset.
 go run ./paper/gentestdata $datadir/viral.1.1.genomic.fna.gz
+go run ./paper/gentestdatabig $datadir/representatives.fa
 
 
 # PRE-SKETCH REFERENCE DATASET
@@ -58,7 +59,7 @@ go run ./paper/testsearch
 for s in 25 50 100 200; do
   reset
   for i in 1 2 3 4 5; do
-    time blini -q testdata/fasta/clust_snps.fa -o $outdir/blini_$s -s $s -c -m 0.97
+    time blini -q $fastadir/clust_snps.fa -o $outdir/blini_$s -s $s -c -m 0.97
   done
   read -p "Done $s"
 done
@@ -70,7 +71,7 @@ for t in 1 4; do
     rm -fr tmp &&
     time \
       mmseqs easy-linclust -v 1 --threads $t \
-      testdata/fasta/clust_snps.fa $outdir/mm tmp \
+      $fastadir/clust_snps.fa $outdir/mm tmp \
       --min-seq-id 0.97 --seq-id-mode 1 --cov-mode 1 &&
     rm -fr tmp
   done
