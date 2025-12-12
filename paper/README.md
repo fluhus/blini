@@ -34,12 +34,14 @@ This is mostly the manuscripts, plots and benchmarking code.
 * [Bacterial dataset](http://segatalab.cibio.unitn.it/data/Pasolli_et_al.html) (4930 SGBs)
   * Need to extract the files and concatenate them into one file
     `representatives.fa`.
-* Python helper scripts:
-  [myplot](https://github.com/fluhus/lab-utils/blob/master/myplot.py) and
-  [cmbfig](https://github.com/fluhus/lab-utils/blob/master/cmbfig.py)
 * Tools compared against:
   [mmseqs2](https://github.com/soedinglab/MMseqs2/) and
   [sourmash](https://github.com/sourmash-bio/sourmash/)
+* Python helper scripts for plotting:
+  [myplot](https://github.com/fluhus/lab-utils/blob/master/myplot.py) and
+  [cmbfig](https://github.com/fluhus/lab-utils/blob/master/cmbfig.py)
+* Optional: a snapshot of the generated test data it available on
+  [Zenodo](https://zenodo.org/records/17904728).
 
 ### How to run
 
