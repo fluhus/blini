@@ -51,7 +51,7 @@ Such big queries are often outsourced to powerful cloud-based
 services such as BLAST [@altschul1990basic] or CZID [@simmonds2024cz].
 
 In recent years, k-mer-based algorithms were introduced,
-that enabled efficient searching in large datasets on local machines.
+which enabled efficient searching in large datasets on local machines.
 Mash distance [@ondov2016mash] introduced an alignment-free estimation
 formula for average nucleotide identity between sequences,
 making sequence comparison linear.
@@ -167,7 +167,7 @@ The times shown here do not include reference-preprocessing time.
 ## Search - big
 
 To test the search function on a large dataset,
-the bacterial contigs from [@pasolli2019extensive] were used.
+the bacterial contigs from @pasolli2019extensive were used.
 This 10GB dataset contains 934K contigs from almost 5K bacterial species.
 Each of the compared tools was run to create an index of the dataset.
 
