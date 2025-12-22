@@ -86,14 +86,14 @@ go run ./paper/testclust
 
 # Search
 python $cmbfigdir/cmbfig.py \
-  -c 3 -o paper/results/search.png -i \
+  -c 3 -wt 0.66 -o paper/results/search.png -i \
   $outdir/search_found.png \
   $outdir/search_others.png \
   $outdir/search_time.png
 
 # Cluster frag
 python $cmbfigdir/cmbfig.py \
-  -c 2 -o paper/results/clust_frag.png -i \
+  -c 2 -wt 0.66 -o paper/results/clust_frag.png -i \
   $outdir/clust_frag_nclust.png \
   $outdir/clust_frag_ari.png \
   $outdir/clust_frag_time.png \
@@ -101,7 +101,7 @@ python $cmbfigdir/cmbfig.py \
 
 # Cluster snps
 python $cmbfigdir/cmbfig.py \
-  -c 2 -o paper/results/clust_snps.png -i \
+  -c 2 -wt 0.66 -o paper/results/clust_snps.png -i \
   $outdir/clust_snps_nclust.png \
   $outdir/clust_snps_ari.png \
   $outdir/clust_snps_time.png \
