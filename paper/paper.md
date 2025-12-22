@@ -10,7 +10,7 @@ authors:
     affiliation: '1'
 affiliations:
   - index: 1
-    name: University of California, Irvine, CA, USA
+    name: University of California, Irvine, CA, United States of America
 date: 24 June 2025
 bibliography: paper.bib
 ---
@@ -39,7 +39,7 @@ redundant metagenome-assembled genomes (MAGs) across different samples.
 In [@pasolli2019extensive] for example, over 150,000 MAGs were
 dereplicated into about 5,000 species-level bins.
 Such clustering operations typically require many compute hours,
-which can grow quadratically with the size of the input,
+which can grow quadratically with the size of the input
 when using classical clustering algorithms.
 
 Characterizing the taxonomic makeup of a sample or a MAG collection
@@ -140,7 +140,8 @@ The algorithms were then run on the 100 genomes as queries,
 and the original database as reference.
 Each algorithm was expected to match each genome to its source
 in the database.
-In a second run, random SNPs were introduced to 1% of the genomes'
+In a second run, random single-nucleotide polymorphisms (SNPs)
+were introduced to 1% of the genomes'
 bases, and the same test was rerun.
 For each test, the number of matches with sequences other than
 the query's source was also measured.
@@ -153,10 +154,10 @@ The number of non-source matches was 824 and 712 in Blini,
 865 and 660 in Sourmash, and 3143 and 3019 in MMseqs,
 in the raw and mutated datasets, respectively (Figure 1b).
 
-Run-time was measured for searching the 100 sequences sequentially.
+Run time was measured for searching the 100 sequences sequentially.
 Blini and MMseqs were executed once and searched for all the queries in one run,
 while Sourmash had to be executed once for each individual query.
-Each run was repeated five times and the average run-time is reported.
+Each run was repeated five times and the average run time is reported.
 Blini completed the run in 0.5 seconds,
 Sourmash completed the run in 126 seconds,
 and MMseqs completed the run in 151 seconds (Figure 1c).
@@ -189,7 +190,7 @@ entire set of 100K queries (Figure 2).
 This means a throughput of 5100 queries per second after the 6 seconds
 of loading the reference index.
 Blini matched all 100K queries with their correct source in the reference,
-with 2444 additional non-source matches (false-positives).
+with 2444 additional non-source matches (false positives).
 
 ![Search times for the bacterial dataset. Each tool was run on randomly chosen 10 kilobase fragments from a 10GB bacterial dataset. MMseqs is marked with an X because it was stopped manually before it could finish running.](results/search_big.png){width=40%}
 
@@ -197,8 +198,8 @@ with 2444 additional non-source matches (false-positives).
 
 The clustering function was tested on two simulated datasets
 created from the 100 chosen genomes of the previous test.
-In one dataset each sequence had multiple counterparts with random SNPs.
-In the second dataset random fragments were extracted from
+In one dataset, each sequence had multiple counterparts with random SNPs.
+In the second dataset, random fragments were extracted from
 each root sequence.
 In the SNPs dataset, each of the 100 original sequences had another 100
 mutated counterparts.
@@ -208,13 +209,13 @@ had 300 random fragments extracted from it,
 of length at least 1000 bases.
 The algorithms were expected to group each sequence with its mutated
 counterparts or with its fragments.
-Performance was evaluated using the Adjusted Rand-Index (ARI).
+Performance was evaluated using the Adjusted Rand Index (ARI).
 Blini's *scale* refers to the fraction of k-mers considered
 for the operation.
 Scale 100 means that 1/100 of k-mers were used.
 
 In the SNPs dataset, both Blini and MMseqs achieved an ARI between 0.999 and 1.0,
-except for Blini with scale 200 which achieved an ARI of 0.997 (Figure 3b).
+except for Blini with scale 200, which achieved an ARI of 0.997 (Figure 3b).
 Blini created 100, 100, 101 and 110 clusters using scales
 25, 50, 100 and 200 respectively.
 MMseqs created 103 clusters (Figure 3a).
@@ -253,9 +254,10 @@ which means fewer than 100 hashes.
 With the default scale of 100, it means on average less than one
 hash for a 100-base sequence.
 Using a binomial proportion error estimation
-$\sigma_{err} = \sqrt{\frac{J(J-1)}{|A_{sub} \cap B_{sub}|}}$,
+$\sigma_{\mathrm{err}} = \sqrt{\frac{J(J-1)}{|A_{\mathrm{sub}} \cap B_{\mathrm{sub}}|}}$,
 where $J$ is the true Jaccard similarity and
-$A_{sub}$ and $B_{sub}$ are the subsamples of sets $A$ and $B$,
+$A_{\mathrm{sub}}$ and $B_{\mathrm{sub}}$
+are the subsamples of sets $A$ and $B$,
 a subsample of at least 25 k-mers is required in order to reduce
 the Jaccard estimation error below 10%.
 Therefore, Blini is effective for sequences at least 25 times
