@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"os"
 	"runtime/debug"
-
-	"github.com/fluhus/biostuff/mash/v2"
-	"github.com/fluhus/blini/sketching"
 )
 
 /*
@@ -18,11 +15,6 @@ TODO
 */
 
 const (
-	kmerLen  = 21
-	idxScale = 4
-
-	useMyDist    = true          // Use a new experiemental distance func.
-	indexSuffix  = ".blini"      // Suffix of pre-sketched files.
 	unmatchedRef = "(unmatched)" // The "reference" value of an unmatched query.
 )
 
@@ -59,23 +51,5 @@ func main() {
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(2)
-	}
-}
-
-// Returns the jaccard/containment jaccard.
-func jaccard(a, b []uint64) float64 {
-	if *contn {
-		return sketching.Containment(a, b)
-	} else {
-		return sketching.Jaccard(a, b)
-	}
-}
-
-// Returns a specialized distance.
-func myDist(a, b []uint64, alen, blen int) float64 {
-	if *contn {
-		return mash.FromJaccard(sketching.Containment(a, b), kmerLen)
-	} else {
-		return sketching.MyDist(a, b, alen, blen, kmerLen)
 	}
 }

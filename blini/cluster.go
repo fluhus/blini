@@ -9,8 +9,7 @@ import (
 	"slices"
 
 	"github.com/fluhus/biostuff/formats/fasta"
-	"github.com/fluhus/biostuff/mash/v2"
-	"github.com/fluhus/blini/sketching"
+	"github.com/fluhus/blini/libblini"
 	"github.com/fluhus/gostuff/aio"
 	"github.com/fluhus/gostuff/jio"
 	"github.com/fluhus/gostuff/ptimer"
@@ -30,59 +29,41 @@ func mainCluster() error {
 		return fmt.Errorf("flag -u is for search, not for clustering")
 	}
 
-	fmt.Println("Sketching sequences")
-	sk, err := collectSketches(sketchFile(*qFile))
+	db, err := libblini.ReadDataset(*qFile, *scale)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println("Indexing")
-	pt := ptimer.New()
-	idx := sketching.NewIndex(*scale * idxScale)
-	for i, s := range sk.skch {
-		idx.Add(s, i)
-		pt.Inc()
-	}
-	pt.Done()
-
-	idx.Clean()
+	db.CleanIndex()
 
 	fmt.Println("Clustering")
-	perm := sortedPerm(sk.lens, func(a, b int) int {
-		return cmp.Compare(b, a)
+	perm := sortedPerm(db.Len(), func(a, b int) int {
+		return cmp.Compare(db.SequenceLen(b), db.SequenceLen(a))
 	})
 	friends := 0
 	var clusters [][]int
-	pt = ptimer.NewFunc(func(i int) string {
+	pt := ptimer.NewFunc(func(i int) string {
 		return fmt.Sprintf("%d (%dc %df)", i, len(clusters), friends/i)
 	})
+	done := make([]bool, db.Len())
 	for _, i := range perm {
-		s := sk.skch[i]
-		if s == nil {
+		if done[i] {
 			pt.Inc()
 			continue
 		}
-		sk.skch[i] = nil
-		fr := idx.Search(s)
-		friends += len(fr)
+		done[i] = true
+		s := db.Sketch(i)
 
 		// Create cluster.
 		c := []int{i}
-		for _, f := range fr {
-			if sk.skch[f] == nil {
+		for sr := range db.SearchSketch(s, db.SequenceLen(i), *contn) {
+			if done[sr.I] {
 				continue
 			}
-			var sim float64
-			if useMyDist {
-				sim = 1 - myDist(sk.skch[f], s, sk.lens[f], sk.lens[i])
-			} else {
-				sim = 1 - mash.FromJaccard(jaccard(sk.skch[f], s), kmerLen)
-			}
-			if sim < *minSim {
+			if sr.Similarity < *minSim {
 				continue
 			}
-			c = append(c, f)
-			sk.skch[f] = nil
+			c = append(c, sr.I)
+			done[sr.I] = true
 		}
 		clusters = append(clusters, c)
 		pt.Inc()
@@ -115,7 +96,7 @@ func mainCluster() error {
 	// Create clusters by names.
 	byName := snm.SliceToSlice(clusters, func(c []int) []string {
 		return snm.SliceToSlice(c, func(i int) string {
-			return sk.names[i]
+			return db.Name(i)
 		})
 	})
 
@@ -161,9 +142,7 @@ func mainCluster() error {
 }
 
 // Returns the indexes of slice elements if they were sorted.
-func sortedPerm[T any](s []T, cmp func(T, T) int) []int {
+func sortedPerm(n int, cmp func(int, int) int) []int {
 	return snm.SortedFunc(
-		snm.Slice(len(s), func(i int) int { return i }),
-		func(i, j int) int { return cmp(s[i], s[j]) },
-	)
+		snm.Slice(n, func(i int) int { return i }), cmp)
 }
