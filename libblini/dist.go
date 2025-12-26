@@ -9,6 +9,8 @@ const (
 	useMyDist = true // Use a new experiemental distance func.
 )
 
+// Returns the estimated ANI between to sketches s1 and s2,
+// with the originial sequence lengths l1 and l2.
 func similarity(s1, s2 []uint64, l1, l2 int, contn bool) float64 {
 	if useMyDist {
 		return 1 - myDist(s1, s2, l1, l2, contn)

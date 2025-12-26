@@ -20,6 +20,9 @@ type sketch struct {
 	scale uint64   // Kmer selection scale.
 }
 
+// ReadDataset reads a sketch dataset from a file.
+// Reads pre-sketched data if the file ends with .blini,
+// otherwise treats the data as fasta and sketches it.
 func ReadDataset(file string, scale uint64) (*Dataset, error) {
 	var d *Dataset
 	var err error
@@ -38,6 +41,7 @@ func ReadDataset(file string, scale uint64) (*Dataset, error) {
 	return d, nil
 }
 
+// Sketches a fasta file and outputs the sketches into a file.
 func CreateSketchFile(inFile, outFile string, scale uint64) error {
 	var out io.Writer
 	if outFile == "" {
