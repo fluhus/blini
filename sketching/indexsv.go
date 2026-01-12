@@ -1,5 +1,3 @@
-//go:build !oldmap
-
 package sketching
 
 import (
