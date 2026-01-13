@@ -30,6 +30,9 @@ var (
 	version = "development version"
 )
 
+// Size of hashes used here.
+type hashType = uint64
+
 func main() {
 	flag.Parse()
 	debug.SetGCPercent(20)

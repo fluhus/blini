@@ -3,6 +3,7 @@ package libblini
 import (
 	"github.com/fluhus/biostuff/mash"
 	"github.com/fluhus/blini/sketching"
+	"golang.org/x/exp/constraints"
 )
 
 const (
@@ -11,7 +12,7 @@ const (
 
 // Returns the estimated ANI between to sketches s1 and s2,
 // with the originial sequence lengths l1 and l2.
-func similarity(s1, s2 []uint64, l1, l2 int, contn bool) float64 {
+func similarity[T constraints.Unsigned](s1, s2 []T, l1, l2 int, contn bool) float64 {
 	if useMyDist {
 		return 1 - myDist(s1, s2, l1, l2, contn)
 	} else {
@@ -20,7 +21,7 @@ func similarity(s1, s2 []uint64, l1, l2 int, contn bool) float64 {
 }
 
 // Returns the jaccard/containment jaccard.
-func jaccard(a, b []uint64, contn bool) float64 {
+func jaccard[T constraints.Unsigned](a, b []T, contn bool) float64 {
 	if contn {
 		return sketching.Containment(a, b)
 	} else {
@@ -29,7 +30,7 @@ func jaccard(a, b []uint64, contn bool) float64 {
 }
 
 // Returns a specialized distance.
-func myDist(s1, s2 []uint64, l1, l2 int, contn bool) float64 {
+func myDist[T constraints.Unsigned](s1, s2 []T, l1, l2 int, contn bool) float64 {
 	if contn {
 		return mash.FromJaccard(sketching.Containment(s1, s2), kmerLen)
 	} else {

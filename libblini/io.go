@@ -11,27 +11,28 @@ import (
 	"github.com/fluhus/gostuff/aio"
 	"github.com/fluhus/gostuff/bnry"
 	"github.com/fluhus/gostuff/ptimer"
+	"golang.org/x/exp/constraints"
 )
 
-type sketch struct {
-	h     []uint64 // Sketch hashes.
-	ln    int      // Sequence length.
-	name  string   // Sequence name.
-	scale uint64   // Kmer selection scale.
+type sketch[T constraints.Unsigned] struct {
+	h     []T    // Sketch hashes.
+	ln    int    // Sequence length.
+	name  string // Sequence name.
+	scale uint64 // Kmer selection scale.
 }
 
 // ReadDataset reads a sketch dataset from a file.
 // Reads pre-sketched data if the file ends with .blini,
 // otherwise treats the data as fasta and sketches it.
-func ReadDataset(file string, scale uint64) (*Dataset, error) {
-	var d *Dataset
+func ReadDataset[T constraints.Unsigned](file string, scale uint64) (*Dataset[T], error) {
+	var d *Dataset[T]
 	var err error
 	if strings.HasSuffix(file, indexSuffix) {
 		fmt.Println("Reading prepared sketches")
-		d, err = collectSketches(readSketches(file))
+		d, err = collectSketches(readSketches[T](file))
 	} else {
 		fmt.Println("Sketching reference sequences")
-		d, err = collectSketches(sketchFile(file, scale))
+		d, err = collectSketches(sketchFile[T](file, scale))
 	}
 	if err != nil {
 		return nil, err
@@ -42,7 +43,7 @@ func ReadDataset(file string, scale uint64) (*Dataset, error) {
 }
 
 // Sketches a fasta file and outputs the sketches into a file.
-func CreateSketchFile(inFile, outFile string, scale uint64) error {
+func CreateSketchFile[T constraints.Unsigned](inFile, outFile string, scale uint64) error {
 	var out io.Writer
 	if outFile == "" {
 		fmt.Println("No output")
@@ -62,7 +63,7 @@ func CreateSketchFile(inFile, outFile string, scale uint64) error {
 
 	fmt.Println("Sketching sequences")
 	pt := ptimer.New()
-	for s, err := range sketchFile(inFile, scale) {
+	for s, err := range sketchFile[T](inFile, scale) {
 		if err != nil {
 			return err
 		}
@@ -76,15 +77,16 @@ func CreateSketchFile(inFile, outFile string, scale uint64) error {
 }
 
 // Sketches an input fasta file and iterates over the sketches.
-func sketchFile(file string, scale uint64) iter.Seq2[sketch, error] {
-	return func(yield func(sketch, error) bool) {
+func sketchFile[T constraints.Unsigned](
+	file string, scale uint64) iter.Seq2[sketch[T], error] {
+	return func(yield func(sketch[T], error) bool) {
 		for fa, err := range fasta.File(file) {
 			if err != nil {
-				yield(sketch{}, err)
+				yield(sketch[T]{}, err)
 				return
 			}
-			var e sketch
-			e.h = sketching.Sketch(fa.Sequence, kmerLen, scale)
+			var e sketch[T]
+			e.h = sketching.Sketch[T](fa.Sequence, kmerLen, scale)
 			e.ln = len(fa.Sequence)
 			e.name = string(fa.Name)
 			e.scale = scale
@@ -96,23 +98,23 @@ func sketchFile(file string, scale uint64) iter.Seq2[sketch, error] {
 }
 
 // Iterates over sketches in a file.
-func readSketches(file string) iter.Seq2[sketch, error] {
-	return func(yield func(sketch, error) bool) {
+func readSketches[T constraints.Unsigned](file string) iter.Seq2[sketch[T], error] {
+	return func(yield func(sketch[T], error) bool) {
 		f, err := aio.Open(file)
 		if err != nil {
-			yield(sketch{}, err)
+			yield(sketch[T]{}, err)
 			return
 		}
 		defer f.Close()
 
 		for {
-			var e sketch
+			var e sketch[T]
 			err := bnry.Read(f, &e.h, &e.ln, &e.name, &e.scale)
 			if err != nil {
 				if err == io.EOF {
 					return
 				}
-				yield(sketch{}, err)
+				yield(sketch[T]{}, err)
 				return
 			}
 			if !yield(e, nil) {
@@ -124,8 +126,9 @@ func readSketches(file string) iter.Seq2[sketch, error] {
 
 // Collects sketches from an iterator,
 // validating that their scales are the same.
-func collectSketches(seq iter.Seq2[sketch, error]) (*Dataset, error) {
-	skch := &Dataset{}
+func collectSketches[T constraints.Unsigned](
+	seq iter.Seq2[sketch[T], error]) (*Dataset[T], error) {
+	skch := &Dataset[T]{}
 	first := true
 	pt := ptimer.New()
 	for s, err := range seq {
@@ -151,8 +154,8 @@ func collectSketches(seq iter.Seq2[sketch, error]) (*Dataset, error) {
 }
 
 // Builds the search index for this dataset.
-func (d *Dataset) index() {
-	d.idx = sketching.NewIndex(d.scale * idxScale)
+func (d *Dataset[T]) index() {
+	d.idx = sketching.NewIndex[T](idxScale)
 	pt := ptimer.New()
 	for i, s := range d.sketches {
 		d.idx.Add(s, i)

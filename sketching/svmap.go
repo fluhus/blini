@@ -2,7 +2,8 @@ package sketching
 
 import "iter"
 
-// Replaces a map with slice values.
+// A map with slice values, optimized for cases where most
+// values are singletons.
 type svmap[K comparable, V any] struct {
 	singles map[K]V
 	slices  map[K][]V
