@@ -14,13 +14,6 @@ import (
 	"golang.org/x/exp/constraints"
 )
 
-type sketch[T constraints.Unsigned] struct {
-	h     []T    // Sketch hashes.
-	ln    int    // Sequence length.
-	name  string // Sequence name.
-	scale uint64 // Kmer selection scale.
-}
-
 // ReadDataset reads a sketch dataset from a file.
 // Reads pre-sketched data if the file ends with .blini,
 // otherwise treats the data as fasta and sketches it.
@@ -78,14 +71,14 @@ func CreateSketchFile[T constraints.Unsigned](inFile, outFile string, scale uint
 
 // Sketches an input fasta file and iterates over the sketches.
 func sketchFile[T constraints.Unsigned](
-	file string, scale uint64) iter.Seq2[sketch[T], error] {
-	return func(yield func(sketch[T], error) bool) {
+	file string, scale uint64) iter.Seq2[Sketch[T], error] {
+	return func(yield func(Sketch[T], error) bool) {
 		for fa, err := range fasta.File(file) {
 			if err != nil {
-				yield(sketch[T]{}, err)
+				yield(Sketch[T]{}, err)
 				return
 			}
-			var e sketch[T]
+			var e Sketch[T]
 			e.h = sketching.Sketch[T](fa.Sequence, kmerLen, scale)
 			e.ln = len(fa.Sequence)
 			e.name = string(fa.Name)
@@ -98,23 +91,23 @@ func sketchFile[T constraints.Unsigned](
 }
 
 // Iterates over sketches in a file.
-func readSketches[T constraints.Unsigned](file string) iter.Seq2[sketch[T], error] {
-	return func(yield func(sketch[T], error) bool) {
+func readSketches[T constraints.Unsigned](file string) iter.Seq2[Sketch[T], error] {
+	return func(yield func(Sketch[T], error) bool) {
 		f, err := aio.Open(file)
 		if err != nil {
-			yield(sketch[T]{}, err)
+			yield(Sketch[T]{}, err)
 			return
 		}
 		defer f.Close()
 
 		for {
-			var e sketch[T]
+			var e Sketch[T]
 			err := bnry.Read(f, &e.h, &e.ln, &e.name, &e.scale)
 			if err != nil {
 				if err == io.EOF {
 					return
 				}
-				yield(sketch[T]{}, err)
+				yield(Sketch[T]{}, err)
 				return
 			}
 			if !yield(e, nil) {
@@ -127,7 +120,7 @@ func readSketches[T constraints.Unsigned](file string) iter.Seq2[sketch[T], erro
 // Collects sketches from an iterator,
 // validating that their scales are the same.
 func collectSketches[T constraints.Unsigned](
-	seq iter.Seq2[sketch[T], error]) (*Dataset[T], error) {
+	seq iter.Seq2[Sketch[T], error]) (*Dataset[T], error) {
 	skch := &Dataset[T]{}
 	first := true
 	pt := ptimer.New()

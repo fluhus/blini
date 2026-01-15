@@ -37,7 +37,7 @@ func mainCluster() error {
 
 	fmt.Println("Clustering")
 	perm := sortedPerm(db.Len(), func(a, b int) int {
-		return cmp.Compare(db.SequenceLen(b), db.SequenceLen(a))
+		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
 	})
 	friends := 0
 	var clusters [][]int
@@ -55,7 +55,7 @@ func mainCluster() error {
 
 		// Create cluster.
 		c := []int{i}
-		for sr := range db.SearchSketch(s, db.SequenceLen(i), *contn) {
+		for sr := range db.SearchSketch(s, *contn) {
 			if done[sr.I] {
 				continue
 			}
@@ -96,7 +96,7 @@ func mainCluster() error {
 	// Create clusters by names.
 	byName := snm.SliceToSlice(clusters, func(c []int) []string {
 		return snm.SliceToSlice(c, func(i int) string {
-			return db.Name(i)
+			return db.Sketch(i).Name()
 		})
 	})
 

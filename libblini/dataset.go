@@ -3,7 +3,6 @@ package libblini
 
 import (
 	"iter"
-	"slices"
 
 	"github.com/fluhus/blini/sketching"
 	"golang.org/x/exp/constraints"
@@ -33,16 +32,19 @@ type SearchResult struct {
 
 // Search sketches seq and and looks it up in the dataset.
 func (d *Dataset[T]) Search(seq []byte, contn bool) iter.Seq[SearchResult] {
-	return d.SearchSketch(
-		sketching.Sketch[T](seq, kmerLen, d.scale),
-		len(seq), contn)
+	s := &Sketch[T]{
+		h:     sketching.Sketch[T](seq, kmerLen, d.scale),
+		ln:    len(seq),
+		scale: d.scale,
+	}
+	return d.SearchSketch(s, contn)
 }
 
 // SearchSketch looks up a sketch in the dataset.
-func (d *Dataset[T]) SearchSketch(s []T, ln int, contn bool) iter.Seq[SearchResult] {
+func (d *Dataset[T]) SearchSketch(s *Sketch[T], contn bool) iter.Seq[SearchResult] {
 	return func(yield func(SearchResult) bool) {
-		for _, i := range d.idx.Search(s) {
-			sim := similarity(s, d.sketches[i], ln, d.lens[i], contn)
+		for _, i := range d.idx.Search(s.h) {
+			sim := similarity(s.h, d.sketches[i], s.ln, d.lens[i], contn)
 			sr := SearchResult{
 				I:          i,
 				Name:       d.names[i],
@@ -61,19 +63,14 @@ func (d *Dataset[T]) CleanIndex() {
 	d.idx.Clean()
 }
 
-// Name returns the name of the i'th sequence.
-func (d *Dataset[T]) Name(i int) string {
-	return d.names[i]
-}
-
 // Sketch returns a clone of the i'th sketch.
-func (d *Dataset[T]) Sketch(i int) []T {
-	return slices.Clone(d.sketches[i])
-}
-
-// SequenceLen returns the length of the i'th sequence.
-func (d *Dataset[T]) SequenceLen(i int) int {
-	return d.lens[i]
+func (d *Dataset[T]) Sketch(i int) *Sketch[T] {
+	return &Sketch[T]{
+		h:     d.sketches[i],
+		ln:    d.lens[i],
+		name:  d.names[i],
+		scale: d.scale,
+	}
 }
 
 // Len returns the number of sketches in the dataset.
