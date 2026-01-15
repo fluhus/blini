@@ -39,6 +39,23 @@ func (idx *Index[T]) Add(s []T, i int) {
 // Search returns serial numbers of sketches that share hashes with
 // the given sketch.
 func (idx *Index[T]) Search(s []T) []int {
+	if minIndexHitRatio > 1 {
+		cnt := map[idType]int{}
+		for _, x := range s {
+			for i := range idx.idx.get(x) {
+				cnt[i]++
+			}
+		}
+		var result []int
+		r := minIndexHitRatio * idx.scale
+		min := (len(s) + r - 1) / r
+		for k, v := range cnt {
+			if v >= min {
+				result = append(result, int(k))
+			}
+		}
+		return result
+	}
 	set := sets.Set[int]{}
 	for _, x := range s {
 		for i := range idx.idx.get(x) {

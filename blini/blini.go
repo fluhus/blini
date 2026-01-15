@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"reflect"
 	"runtime/debug"
 )
 
@@ -24,18 +25,19 @@ var (
 	oFile     = flag.String("o", "", "Output file or prefix")
 	contn     = flag.Bool("c", false, "Use containment rather than full match")
 	minSim    = flag.Float64("m", 0.9, "Minimum similarity for match")
-	scale     = flag.Uint64("s", 100, "Use 1/`scale` of the kmers")
+	scale     = flag.Uint64("s", defaultScale, "Use 1/`scale` of the kmers")
 	unmatched = flag.Bool("u", false, "Include unmatched queries in search output")
 
 	version = "development version"
 )
 
-// Size of hashes used here.
-type hashType = uint64
-
 func main() {
 	flag.Parse()
 	debug.SetGCPercent(20)
+
+	if expr {
+		fmt.Println("Hash type:", reflect.TypeFor[hashType]())
+	}
 
 	var err error
 	if *qFile != "" && *rFile != "" {
