@@ -22,6 +22,23 @@ blini -q query.fasta -r reference.fasta -o output.csv
 blini -q query.fasta -r reference.blini -o output.csv
 ```
 
+<details>
+<summary>Output file format</summary>
+
+```
+similarity,query,reference
+99%,Query sequence 1,Influenza virus
+97%,Query sequence 2,Pepper mottle virus
+...
+```
+
+The first row is always `similarity,query,reference`
+and then a row for each match between a query sequence and a reference
+sequence that passed the similarity threshold.
+There can be several matches per query, and several matches per reference.
+
+</details>
+
 ### Sketching
 
 With only `-r` set, Blini pre-sketches the given reference for use
@@ -42,6 +59,29 @@ blini -q input.fasta -o output_prefix
 
 The outputs are a fasta file with the representatives,
 and a JSON file with the cluster assignments.
+
+<details>
+<summary>JSON file format</summary>
+
+```json
+{
+  "byName": [
+    ["Coronavirus 1", "Coronavirus 2"],
+    ["Influenza virus 1", "Influenza virus 2"]
+  ],
+  "byNumber": [
+    [1, 4],
+    [3, 2]
+  ]
+}
+```
+
+The `byName` value holds the names of sequences in each cluster,
+with each cluster's representative first.
+The `byNumber` value is the same, with the index of each sequence
+in the input.
+
+</details>
 
 ### Other options
 
@@ -86,6 +126,78 @@ Therefore, big reference datasets can be broken down and sketched in parallel.
   will be added in the future.
 * No multi-threading at the moment.
   Still fast, innit?
+
+## Examples
+
+<details>
+<summary>Clustering coronavirus</summary>
+
+Let's download some coronavirus genomes from
+[NCBI](https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=694002&assembly_level=3:3).
+We concatenate the sequences into one file, `cov.fa`.
+
+The file should look something like this:
+
+```
+>OZ067591.1 Severe acute respiratory syndrome coronavirus 2
+CTTTCGATCTCTTGTAGATCTGTTC...
+>MW719567.1 Sarbecovirus RhGB01, complete genome
+GGAGGATATCACCTGCGGATAAAAG...
+>EF424622.1 Giraffe coronavirus US/OH3-TC/2006, complete genome
+CGTGCGTGCATCCCGCTTCACTGAT...
+```
+
+Run clustering with 99% minimal similarity:
+
+```
+blini -q cov.fa -m 0.99 -o cov_clust
+```
+
+The output files are `cov_clust.json` and `cov_clust.fasta`.
+
+Inside `cov_clust.json` we find (truncated for clarity):
+
+```json
+{
+  "byName": [
+    [
+      "KC164505.2 Betacoronavirus England 1, complete genome",
+      "NC_019843.3 Middle East respiratory syndrome-related coronavirus...",
+      "NC_038294.1 Betacoronavirus England 1 isolate H123990006, complete genome",
+      "KC667074.1 Human betacoronavirus 2c England-Qatar/2012, complete genome"
+    ],
+    [
+      "DQ084199.1 bat SARS coronavirus HKU3-2, complete genome",
+      "GQ153540.1 Bat SARS coronavirus HKU3-5, complete genome",
+      "GQ153545.1 Bat SARS coronavirus HKU3-10, complete genome",
+      "GQ153548.1 Bat SARS coronavirus HKU3-13, complete genome"
+    ],
+    [
+      "NC_017083.1 Rabbit coronavirus HKU14, complete genome",
+      "JN874559.1 Rabbit coronavirus HKU14 strain HKU14-1, complete genome"
+    ],
+    [
+      "KF636752.1 Bat Hp-betacoronavirus/Zhejiang2013, complete genome",
+      "NC_025217.1 Bat Hp-betacoronavirus/Zhejiang2013, complete genome"
+    ]
+  ]
+}
+```
+
+Inside `cov_clust.fasta` we find the first out of each cluster in the JSON file:
+
+```
+>KC164505.2 Betacoronavirus England 1, complete genome
+...
+>DQ084199.1 bat SARS coronavirus HKU3-2, complete genome
+...
+>NC_017083.1 Rabbit coronavirus HKU14, complete genome
+...
+>KF636752.1 Bat Hp-betacoronavirus/Zhejiang2013, complete genome
+...
+```
+
+</details>
 
 ## Testing
 
