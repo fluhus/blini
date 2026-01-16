@@ -35,7 +35,7 @@ func main() {
 	flag.Parse()
 	debug.SetGCPercent(20)
 
-	if expr {
+	if experimental {
 		fmt.Println("Hash type:", reflect.TypeFor[hashType]())
 	}
 

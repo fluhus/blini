@@ -4,8 +4,9 @@ package main
 
 const (
 	// Is this an experimental build.
-	expr = true
+	experimental = true
 
+	// Default value for the scale flag.
 	defaultScale = 40
 )
 

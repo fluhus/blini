@@ -5,8 +5,11 @@ package main
 import (
 	"cmp"
 	"fmt"
+	"iter"
 	"maps"
+	"math"
 	"slices"
+	"time"
 
 	"github.com/fluhus/biostuff/formats/fasta"
 	"github.com/fluhus/blini/libblini"
@@ -15,6 +18,12 @@ import (
 	"github.com/fluhus/gostuff/ptimer"
 	"github.com/fluhus/gostuff/sets"
 	"github.com/fluhus/gostuff/snm"
+)
+
+const (
+	babiClustering   = experimental // Sort by babi scores rather than by length.
+	babiPrints       = true         // Print timing of babi stages.
+	babiIgnoreCommon = true         // Ignore too common elements.
 )
 
 // Main function for clustering operation.
@@ -39,6 +48,11 @@ func mainCluster() error {
 	perm := sortedPerm(db.Len(), func(a, b int) int {
 		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
 	})
+	if babiClustering {
+		fmt.Println("It's babi time!")
+		perm = babiSort(db)
+	}
+
 	friends := 0
 	var clusters [][]int
 	pt := ptimer.NewFunc(func(i int) string {
@@ -145,4 +159,67 @@ func mainCluster() error {
 func sortedPerm(n int, cmp func(int, int) int) []int {
 	return snm.SortedFunc(
 		snm.Slice(n, func(i int) int { return i }), cmp)
+}
+
+// Returns a sorted permutation according to each sketch's babi score.
+func babiSort(db *libblini.Dataset[hashType]) []int {
+	scores := babiScores(func() iter.Seq[iter.Seq[hashType]] {
+		return func(yield func(iter.Seq[hashType]) bool) {
+			for i := range db.Len() {
+				if !yield(db.Sketch(i).Hashes()) {
+					break
+				}
+			}
+		}
+	})
+	return sortedPerm(db.Len(), func(a, b int) int {
+		return cmp.Compare(scores[b], scores[a])
+	})
+}
+
+// Returns the babi score of each element, by the order of iteration.
+func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
+	t := time.Now()
+	cnt := map[hashType]int{}
+	n := 0
+	for sketch := range f() {
+		n++
+		for h := range sketch {
+			cnt[h]++
+		}
+	}
+	if babiPrints {
+		fmt.Println("Counting took", time.Since(t))
+	}
+
+	if babiIgnoreCommon {
+		t := time.Now()
+		before := len(cnt)
+		thrsh := int(math.Round(math.Pow(float64(n), 2.0/3.0)))
+		for k, v := range cnt {
+			if v > thrsh {
+				delete(cnt, k)
+			}
+		}
+		if babiPrints {
+			diff := before - len(cnt)
+			fmt.Printf("Filtering took %v, removed %v/%v (%.1f%%)\n",
+				time.Since(t), diff, before,
+				float64(diff)/float64(before)*100)
+		}
+	}
+
+	t = time.Now()
+	scores := make([]int, 0, n)
+	for sketch := range f() {
+		s := 0
+		for h := range sketch {
+			s += cnt[h] - 1
+		}
+		scores = append(scores, s)
+	}
+	if babiPrints {
+		fmt.Println("Scoring took", time.Since(t))
+	}
+	return scores
 }
