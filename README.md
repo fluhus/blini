@@ -130,7 +130,44 @@ Therefore, big reference datasets can be broken down and sketched in parallel.
 ## Examples
 
 <details>
-<summary>Clustering coronavirus</summary>
+<summary>Identifying mysterious bacteria</summary>
+
+Let's download some bacterial contigs from the
+[Segata Lab](http://segatalab.cibio.unitn.it/data/Pasolli_et_al.html).
+We'll use
+[proGenomes v4](https://progenomes.embl.de/download.cgi)
+as the reference.
+
+Pre-sketch the reference - not mandatory but recommended for big datasets:
+
+```
+blini -r pg4_genomes_representatives.fna.gz -o pg4.blini
+```
+
+Run search with default minimal similarity (90%).
+We use `-c` because we expect the query contigs to be subsequences of the
+reference whole genomes.
+
+```
+blini -q segata_contigs.fa -r pg4.blini -o out.csv -c
+```
+
+And viola! Inside `out.csv` we find (truncated for clarity):
+
+```
+similarity,query,reference
+99%,gnl|X|NBFFLGAN_1,"Lactobacillus salivarius UCC118, complete genome"
+94%,gnl|X|BPBGINNO_1,"Granulicatella elegans ATCC 700633 genomic scaffold supercont2.1, whole genome shotgun sequence"
+90%,gnl|X|LPGKDJLJ_1,"Enterobacter bugandensis strain UENF-21GII scaf_2_1030401, whole genome shotgun sequence"
+90%,gnl|X|LPGKDJLJ_1,"Lelliottia nimipressuralis strain 51 GCID_CRU_0002_NODE_1.ctg_1, whole genome shotgun sequence"
+91%,gnl|X|LPGKDJLJ_1,"Enterobacter bugandensis strain EBG2 NODE_1_length_2688700_cov_52.224477, whole genome shotgun sequence"
+98%,gnl|X|LPGKDJLJ_1,"Enterobacter sp. M4-VN DNA, sequence04, whole genome shotgun sequence"
+```
+
+</details>
+
+<details>
+<summary>Clustering coronavirus variants</summary>
 
 Let's download some coronavirus genomes from
 [NCBI](https://www.ncbi.nlm.nih.gov/datasets/genome/?taxon=694002&assembly_level=3:3).
