@@ -32,3 +32,9 @@ jobs:
         go install ./blini
         sh testdata/run_blini.sh
         go run ./testdata/test
+
+    - name: Run Test Data (experimental version)
+      run: |
+        go install -tags blexp ./blini
+        sh testdata/run_blini.sh
+        go run ./testdata/test
