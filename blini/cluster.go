@@ -6,7 +6,6 @@ import (
 	"cmp"
 	"fmt"
 	"iter"
-	"maps"
 	"math"
 	"slices"
 	"time"
@@ -16,7 +15,6 @@ import (
 	"github.com/fluhus/gostuff/aio"
 	"github.com/fluhus/gostuff/jio"
 	"github.com/fluhus/gostuff/ptimer"
-	"github.com/fluhus/gostuff/sets"
 	"github.com/fluhus/gostuff/snm"
 )
 
@@ -49,7 +47,9 @@ func mainCluster() error {
 		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
 	})
 	if babiClustering {
-		fmt.Println("It's babi time!")
+		if babiPrints {
+			fmt.Println("It's babi time!")
+		}
 		perm = babiSort(db)
 	}
 
@@ -84,20 +84,8 @@ func mainCluster() error {
 	}
 	pt.Done()
 
-	{ // TODO(fluhus): Organize this code.
-		alli := sets.Set[int]{}
-		lens := 0
-		for _, c := range clusters {
-			alli.Add(c...)
-			lens += len(c)
-		}
-		if lens != len(alli) {
-			fmt.Println("lens!=alli:", lens, len(alli))
-		}
-		if !maps.Equal(alli, sets.Of(perm...)) {
-			fmt.Println("bad alli")
-		}
-	}
+	// This is an assertion. Failure means a bug in the code.
+	checkClusterAssignment(clusters, db.Len())
 
 	// Sort clusters for deterministic output.
 	for _, c := range clusters {
@@ -107,15 +95,16 @@ func mainCluster() error {
 		return cmp.Compare(a[0], b[0])
 	})
 
-	// Create clusters by names.
-	byName := snm.SliceToSlice(clusters, func(c []int) []string {
-		return snm.SliceToSlice(c, func(i int) string {
-			return db.Sketch(i).Name()
-		})
-	})
-
 	if *oFile != "" {
 		fmt.Println("Generating output")
+
+		// Create clusters by names.
+		byName := snm.SliceToSlice(clusters, func(c []int) []string {
+			return snm.SliceToSlice(c, func(i int) string {
+				return db.Sketch(i).Name()
+			})
+		})
+
 		// JSON output.
 		output := map[string]any{
 			"byNumber": clusters,
@@ -222,4 +211,19 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		fmt.Println("Scoring took", time.Since(t))
 	}
 	return scores
+}
+
+// Checks that the clusters include all the numbers from 0 to n-1
+// and with no repetitions.
+func checkClusterAssignment(clusters [][]int, n int) {
+	all := snm.Sorted(slices.Concat(clusters...))
+	if len(all) != n {
+		panic(fmt.Sprintf("bad number of elements: %v, want %v",
+			len(all), n))
+	}
+	for i, x := range all {
+		if x != i {
+			panic(fmt.Sprintf("bad element: %v, want %v", x, i))
+		}
+	}
 }
