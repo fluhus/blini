@@ -29,12 +29,14 @@ jobs:
 
     - name: Run Test Data
       run: |
+        rm -fr tmp
         go install ./blini
         sh testdata/run_blini.sh
         go run ./testdata/test
 
     - name: Run Test Data (experimental version)
       run: |
+        rm -fr tmp
         go install -tags blexp ./blini
         sh testdata/run_blini.sh
         go run ./testdata/test
