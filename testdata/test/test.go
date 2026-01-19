@@ -25,10 +25,16 @@ func main() {
 	if err := testClustersSeqs(); err != nil {
 		panic(err)
 	}
-	if err := testSearch(false); err != nil {
+	if err := testSearch(resultsDir+"/search.csv", false); err != nil {
 		panic(err)
 	}
-	if err := testSearch(true); err != nil {
+	if err := testSearch(resultsDir+"/search_u.csv", true); err != nil {
+		panic(err)
+	}
+	if err := testSearch(resultsDir+"/search2.csv", false); err != nil {
+		panic(err)
+	}
+	if err := testSearch(resultsDir+"/search2_u.csv", true); err != nil {
 		panic(err)
 	}
 	fmt.Println("OK!")
@@ -85,7 +91,7 @@ func testClustersSeqs() error {
 }
 
 // Tests that each query was matched with its reference.
-func testSearch(unmatched bool) error {
+func testSearch(file string, unmatched bool) error {
 	const wantSimilarity = 98
 
 	type entry struct {
@@ -117,10 +123,6 @@ func testSearch(unmatched bool) error {
 		fmt.Sprint(wantSimilarity-1, "%"): true,
 	}
 
-	file := resultsDir + "/search.csv"
-	if unmatched {
-		file = resultsDir + "/search_u.csv"
-	}
 	for row, err := range csvx.DecodeFileHeader[entry](file) {
 		if err != nil {
 			return err
