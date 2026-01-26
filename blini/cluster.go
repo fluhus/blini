@@ -137,6 +137,8 @@ func mainCluster() error {
 				reps = reps[1:]
 			}
 		}
+		fmt.Println("Cluster assignment:    ", *oFile+".json")
+		fmt.Println("Representative genomes:", *oFile+".fasta")
 	} else {
 		fmt.Println("No output")
 	}
@@ -192,8 +194,8 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		}
 		if babiPrints {
 			diff := before - len(cnt)
-			fmt.Printf("Filtering took %v, removed %v/%v (%.1f%%)\n",
-				time.Since(t), diff, before,
+			fmt.Printf("Filtering took %v, threshold %v, removed %v/%v (%.1f%%)\n",
+				time.Since(t), thrsh, diff, before,
 				float64(diff)/float64(before)*100)
 		}
 	}
