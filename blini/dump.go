@@ -22,7 +22,7 @@ func mainDump() error {
 		return fmt.Errorf("no output file given")
 	}
 
-	db, err := libblini.ReadDataset[hashType](*qFile, *scale)
+	db, err := libblini.ReadDataset[hashType](*qFile, *scale, false)
 	if err != nil {
 		return err
 	}

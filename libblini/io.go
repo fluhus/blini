@@ -17,7 +17,8 @@ import (
 // ReadDataset reads a sketch dataset from a file.
 // Reads pre-sketched data if the file ends with .blini,
 // otherwise treats the data as fasta and sketches it.
-func ReadDataset[T constraints.Unsigned](file string, scale uint64) (*Dataset[T], error) {
+func ReadDataset[T constraints.Unsigned](
+	file string, scale uint64, index bool) (*Dataset[T], error) {
 	var d *Dataset[T]
 	var err error
 	if strings.HasSuffix(file, indexSuffix) {
@@ -30,8 +31,10 @@ func ReadDataset[T constraints.Unsigned](file string, scale uint64) (*Dataset[T]
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Indexing")
-	d.index()
+	if index {
+		fmt.Println("Indexing")
+		d.index()
+	}
 	return d, nil
 }
 

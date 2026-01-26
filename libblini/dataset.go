@@ -42,6 +42,9 @@ func (d *Dataset[T]) Search(seq []byte, contn bool) iter.Seq[SearchResult] {
 
 // SearchSketch looks up a sketch in the dataset.
 func (d *Dataset[T]) SearchSketch(s *Sketch[T], contn bool) iter.Seq[SearchResult] {
+	if d.idx == nil {
+		panic("this dataset was created with no search index")
+	}
 	return func(yield func(SearchResult) bool) {
 		for _, i := range d.idx.Search(s.h) {
 			sim := similarity(s.h, d.sketches[i], s.ln, d.lens[i], contn)

@@ -36,7 +36,7 @@ func mainCluster() error {
 		return fmt.Errorf("flag -u is for search, not for clustering")
 	}
 
-	db, err := libblini.ReadDataset[hashType](*qFile, *scale)
+	db, err := libblini.ReadDataset[hashType](*qFile, *scale, true)
 	if err != nil {
 		return err
 	}
