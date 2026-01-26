@@ -35,3 +35,9 @@ func (s *Sketch[T]) Name() string {
 func (s *Sketch[T]) Scale() uint64 {
 	return s.scale
 }
+
+// Similarity returns an estimation of average nucleotide identity (ANI)
+// between the sequence represented by this sketch and the other.
+func (s *Sketch[T]) Similarity(other *Sketch[T], contn bool) float64 {
+	return similarity(s.h, other.h, s.ln, other.ln, contn)
+}

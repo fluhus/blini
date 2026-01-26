@@ -8,6 +8,9 @@ const (
 
 	// Default value for the scale flag.
 	defaultScale = 100
+
+	// Is the distance dump feature enabled.
+	withDump = false
 )
 
 // Size of hashes used here.

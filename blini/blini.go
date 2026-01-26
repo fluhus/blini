@@ -28,6 +28,8 @@ var (
 	scale     = flag.Uint64("s", defaultScale, "Use 1/`scale` of the kmers")
 	unmatched = flag.Bool("u", false, "Include unmatched queries in search output")
 
+	dump *bool // An optional flag.
+
 	version = "development version"
 )
 
@@ -42,6 +44,8 @@ func main() {
 	var err error
 	if *qFile != "" && *rFile != "" {
 		err = mainSearch()
+	} else if (withDump && *dump) && *qFile != "" {
+		err = mainDump()
 	} else if *qFile != "" {
 		err = mainCluster()
 	} else if *rFile != "" {
@@ -56,5 +60,12 @@ func main() {
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		os.Exit(2)
+	}
+}
+
+func init() {
+	if withDump {
+		dump = flag.Bool("dump", false,
+			"Print pairwise distances into the output file")
 	}
 }
