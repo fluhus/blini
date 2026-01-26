@@ -137,6 +137,11 @@ func collectSketches[T constraints.Unsigned](
 					d.scale, s.scale)
 			}
 		}
+		if len(s.h) < minSketchSize {
+			return nil, fmt.Errorf(
+				"sketch has %v elements, but %v are needed for accurate results: %q",
+				len(s.h), minSketchSize, s.name)
+		}
 		d.sketches = append(d.sketches, s.h)
 		d.lens = append(d.lens, s.ln)
 		d.names = append(d.names, s.name)
