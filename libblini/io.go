@@ -23,17 +23,13 @@ func ReadDataset[T constraints.Unsigned](
 	var err error
 	if strings.HasSuffix(file, indexSuffix) {
 		fmt.Println("Reading prepared sketches")
-		d, err = collectSketches(readSketches[T](file))
+		d, err = collectSketches(readSketches[T](file), index)
 	} else {
 		fmt.Println("Sketching reference sequences")
-		d, err = collectSketches(sketchFile[T](file, scale))
+		d, err = collectSketches(sketchFile[T](file, scale), index)
 	}
 	if err != nil {
 		return nil, err
-	}
-	if index {
-		fmt.Println("Indexing")
-		d.index()
 	}
 	return d, nil
 }
@@ -123,39 +119,32 @@ func readSketches[T constraints.Unsigned](file string) iter.Seq2[Sketch[T], erro
 // Collects sketches from an iterator,
 // validating that their scales are the same.
 func collectSketches[T constraints.Unsigned](
-	seq iter.Seq2[Sketch[T], error]) (*Dataset[T], error) {
-	skch := &Dataset[T]{}
-	first := true
+	seq iter.Seq2[Sketch[T], error], index bool) (*Dataset[T], error) {
+	d := &Dataset[T]{}
+	if index {
+		d.idx = sketching.NewIndex[T](idxScale)
+	}
 	pt := ptimer.New()
 	for s, err := range seq {
 		if err != nil {
-			return skch, err
+			return d, err
 		}
-		if first {
-			skch.scale = s.scale
-			first = false
+		if len(d.sketches) == 0 {
+			d.scale = s.scale
 		} else {
-			if s.scale != skch.scale {
-				return skch, fmt.Errorf("mismatching scales: %d, %d",
-					skch.scale, s.scale)
+			if s.scale != d.scale {
+				return d, fmt.Errorf("mismatching scales: %d, %d",
+					d.scale, s.scale)
 			}
 		}
-		skch.sketches = append(skch.sketches, s.h)
-		skch.lens = append(skch.lens, s.ln)
-		skch.names = append(skch.names, s.name)
+		d.sketches = append(d.sketches, s.h)
+		d.lens = append(d.lens, s.ln)
+		d.names = append(d.names, s.name)
+		if index {
+			d.idx.Add(s.h, len(d.sketches)-1)
+		}
 		pt.Inc()
 	}
 	pt.Done()
-	return skch, nil
-}
-
-// Builds the search index for this dataset.
-func (d *Dataset[T]) index() {
-	d.idx = sketching.NewIndex[T](idxScale)
-	pt := ptimer.New()
-	for i, s := range d.sketches {
-		d.idx.Add(s, i)
-		pt.Inc()
-	}
-	pt.Done()
+	return d, nil
 }
