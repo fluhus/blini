@@ -59,6 +59,11 @@ func CreateSketchFile[T constraints.Unsigned](inFile, outFile string, scale uint
 		if err != nil {
 			return err
 		}
+		if len(s.h) < minSketchSize {
+			return fmt.Errorf(
+				"sketch has %v elements, but %v are needed for accurate results: %q",
+				len(s.h), minSketchSize, s.name)
+		}
 		if err := bnry.Write(out, s.h, s.ln, s.name, s.scale); err != nil {
 			return err
 		}
