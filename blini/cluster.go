@@ -186,7 +186,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 	if babiIgnoreCommon {
 		t := time.Now()
 		before := len(cnt)
-		thrsh := int(math.Round(math.Pow(float64(n), 2.0/3.0)))
+		thrsh := int(math.Round(math.Pow(float64(n), 0.9)))
 		for k, v := range cnt {
 			if v > thrsh {
 				delete(cnt, k)
