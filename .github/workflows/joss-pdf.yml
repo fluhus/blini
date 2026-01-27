@@ -2,7 +2,7 @@ name: Draft PDF
 on:
   push:
     paths:
-      - paper/**
+      - paper/blini1/**
       - .github/workflows/joss-pdf.yml
 
 jobs:
