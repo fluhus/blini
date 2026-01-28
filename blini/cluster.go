@@ -47,9 +47,6 @@ func mainCluster() error {
 		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
 	})
 	if babiClustering {
-		if babiPrints {
-			fmt.Println("It's babi time!")
-		}
 		perm = babiSort(db)
 	}
 
@@ -180,7 +177,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		}
 	}
 	if babiPrints {
-		fmt.Println("Counting took", time.Since(t))
+		fmt.Println("Babi counting took", time.Since(t))
 	}
 
 	if babiIgnoreCommon {
@@ -194,7 +191,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		}
 		if babiPrints {
 			diff := before - len(cnt)
-			fmt.Printf("Filtering took %v, threshold %v, removed %v/%v (%.1f%%)\n",
+			fmt.Printf("Babi filtering took %v, threshold %v, removed %v/%v (%.1f%%)\n",
 				time.Since(t), thrsh, diff, before,
 				float64(diff)/float64(before)*100)
 		}
@@ -210,7 +207,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		scores = append(scores, s)
 	}
 	if babiPrints {
-		fmt.Println("Scoring took", time.Since(t))
+		fmt.Println("Babi scoring took", time.Since(t))
 	}
 	return scores
 }

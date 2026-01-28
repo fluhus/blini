@@ -26,6 +26,8 @@ func mainDump() error {
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("Dumping distances")
 	fout, err := aio.Create(*oFile)
 	if err != nil {
 		return err
