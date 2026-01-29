@@ -22,6 +22,7 @@ const (
 	babiClustering   = experimental // Sort by babi scores rather than by length.
 	babiPrints       = true         // Print timing of babi stages.
 	babiIgnoreCommon = true         // Ignore too common elements.
+	secondAssn       = experimental // Run a second round of cluster assignments.
 )
 
 // Main function for clustering operation.
@@ -83,6 +84,12 @@ func mainCluster() error {
 
 	// This is an assertion. Failure means a bug in the code.
 	checkClusterAssignment(clusters, db.Len())
+
+	if secondAssn {
+		fmt.Println("Improving assignments")
+		clusters = improveAssignments(db, clusters)
+		checkClusterAssignment(clusters, db.Len())
+	}
 
 	// Sort clusters for deterministic output.
 	for _, c := range clusters {
@@ -225,4 +232,38 @@ func checkClusterAssignment(clusters [][]int, n int) {
 			panic(fmt.Sprintf("bad element: %v, want %v", x, i))
 		}
 	}
+}
+
+// Reassigns each non-representative element to its closest representative.
+func improveAssignments(db *libblini.Dataset[hashType], clusters [][]int) [][]int {
+	// Keep only reps in the search index.
+	db.Reindex(snm.SliceToSlice(clusters, func(c []int) int { return c[0] }))
+
+	m := map[int][]int{}
+	for _, c := range clusters {
+		m[c[0]] = []int{}
+	}
+	pt := ptimer.New()
+	for i := range db.Len() {
+		pt.Inc()
+		// Skip representatives.
+		if m[i] != nil {
+			continue
+		}
+
+		best, besti := -1.0, -1
+		for c := range db.SearchSketch(db.Sketch(i), *contn) {
+			if c.Similarity > best {
+				best = c.Similarity
+				besti = c.I
+			}
+		}
+		m[besti] = append(m[besti], i)
+	}
+	pt.Done()
+	var newClusters [][]int
+	for k, v := range m {
+		newClusters = append(newClusters, append([]int{k}, v...))
+	}
+	return newClusters
 }

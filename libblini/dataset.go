@@ -83,3 +83,12 @@ func (d *Dataset[T]) Sketch(i int) *Sketch[T] {
 func (d *Dataset[T]) Len() int {
 	return len(d.sketches)
 }
+
+// Reindex re-builds this dataset's index,
+// using only the sketches at the given positions.
+func (d *Dataset[T]) Reindex(ii []int) {
+	d.idx = sketching.NewIndex[T](idxScale)
+	for _, i := range ii {
+		d.idx.Add(d.sketches[i], i)
+	}
+}
