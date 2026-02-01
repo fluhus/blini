@@ -3,14 +3,14 @@
 package main
 
 const (
-	// Is this an experimental build.
-	experimental = false
+	experimental = false // Is this an experimental build.
+	defaultScale = 100   // Default value for the scale flag.
+	withDump     = false // Is the distance dump feature enabled.
 
-	// Default value for the scale flag.
-	defaultScale = 100
-
-	// Is the distance dump feature enabled.
-	withDump = false
+	babiClustering   = false // Sort by babi scores rather than by length.
+	babiPrints       = true  // Print timing of babi stages.
+	babiIgnoreCommon = true  // Ignore too common elements.
+	secondAssn       = false // Run a second round of cluster assignments.
 )
 
 // Size of hashes used here.

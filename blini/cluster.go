@@ -18,13 +18,6 @@ import (
 	"github.com/fluhus/gostuff/snm"
 )
 
-const (
-	babiClustering   = experimental // Sort by babi scores rather than by length.
-	babiPrints       = true         // Print timing of babi stages.
-	babiIgnoreCommon = true         // Ignore too common elements.
-	secondAssn       = experimental // Run a second round of cluster assignments.
-)
-
 // Main function for clustering operation.
 func mainCluster() error {
 	fmt.Println("--------------------")
