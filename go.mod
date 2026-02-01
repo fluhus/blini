@@ -1,14 +1,14 @@
 module github.com/fluhus/blini
 
-go 1.24
+go 1.24.0
 
 require (
-	github.com/fluhus/biostuff v1.2.1-0.20250530221512-3d864f1a8120
-	github.com/fluhus/gostuff v1.3.0
-	golang.org/x/exp v0.0.0-20250228200357-dead58393ab7
+	github.com/fluhus/biostuff v1.4.0
+	github.com/fluhus/gostuff v1.4.0
+	golang.org/x/exp v0.0.0-20260112195511-716be5621a96
 )
 
 require (
-	github.com/klauspost/compress v1.18.0 // indirect
+	github.com/klauspost/compress v1.18.2 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 )
