@@ -30,7 +30,7 @@ func mainCluster() error {
 		return fmt.Errorf("flag -u is for search, not for clustering")
 	}
 
-	db, err := libblini.ReadDataset[hashType](*qFile, *scale, true)
+	db, err := libblini.ReadDataset[hashType](*qFile, *scale, true, ignoreShort)
 	if err != nil {
 		return err
 	}
@@ -50,8 +50,14 @@ func mainCluster() error {
 		return fmt.Sprintf("%d (%dc %df)", i, len(clusters), friends/i)
 	})
 	done := make([]bool, db.Len())
+	var ignored []int // Keeping ignored IDs for verification.
 	for _, i := range perm {
 		if done[i] {
+			pt.Inc()
+			continue
+		}
+		if db.IsIgnored(i) {
+			ignored = append(ignored, i)
 			pt.Inc()
 			continue
 		}
@@ -76,12 +82,12 @@ func mainCluster() error {
 	pt.Done()
 
 	// This is an assertion. Failure means a bug in the code.
-	checkClusterAssignment(clusters, db.Len())
+	checkClusterAssignment(append(clusters, ignored), db.Len())
 
 	if secondAssn {
 		fmt.Println("Improving assignments")
 		clusters = improveAssignments(db, clusters)
-		checkClusterAssignment(clusters, db.Len())
+		checkClusterAssignment(append(clusters, ignored), db.Len())
 	}
 
 	// Sort clusters for deterministic output.
@@ -233,18 +239,25 @@ func improveAssignments(db *libblini.Dataset[hashType], clusters [][]int) [][]in
 	db.Reindex(snm.SliceToSlice(clusters, func(c []int) int { return c[0] }))
 
 	m := map[int][]int{}
+	original := map[int]int{}
 	for _, c := range clusters {
 		m[c[0]] = []int{}
+		for _, x := range c {
+			original[x] = c[0]
+		}
 	}
 	pt := ptimer.New()
 	for i := range db.Len() {
 		pt.Inc()
+		if db.IsIgnored(i) {
+			continue
+		}
 		// Skip representatives.
 		if m[i] != nil {
 			continue
 		}
 
-		best, besti := -1.0, -1
+		best, besti := -1.0, original[i]
 		for c := range db.SearchSketch(db.Sketch(i), *contn) {
 			if c.Similarity > best {
 				best = c.Similarity

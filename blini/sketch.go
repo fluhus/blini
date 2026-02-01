@@ -19,5 +19,5 @@ func mainSketch() error {
 		return fmt.Errorf("flag -u is for search, not for sketching")
 	}
 
-	return libblini.CreateSketchFile[hashType](*rFile, *oFile, *scale)
+	return libblini.CreateSketchFile[hashType](*rFile, *oFile, *scale, ignoreShort)
 }

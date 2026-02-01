@@ -11,6 +11,7 @@ import (
 	"github.com/fluhus/gostuff/aio"
 	"github.com/fluhus/gostuff/bnry"
 	"github.com/fluhus/gostuff/ptimer"
+	"github.com/fluhus/gostuff/sets"
 	"golang.org/x/exp/constraints"
 )
 
@@ -18,15 +19,15 @@ import (
 // Reads pre-sketched data if the file ends with .blini,
 // otherwise treats the data as fasta and sketches it.
 func ReadDataset[T constraints.Unsigned](
-	file string, scale uint64, index bool) (*Dataset[T], error) {
+	file string, scale uint64, index bool, ignoreShort bool) (*Dataset[T], error) {
 	var d *Dataset[T]
 	var err error
 	if strings.HasSuffix(file, indexSuffix) {
 		fmt.Println("Reading prepared sketches")
-		d, err = collectSketches(readSketches[T](file), index)
+		d, err = collectSketches(readSketches[T](file), index, ignoreShort)
 	} else {
 		fmt.Println("Sketching reference sequences")
-		d, err = collectSketches(sketchFile[T](file, scale), index)
+		d, err = collectSketches(sketchFile[T](file, scale), index, ignoreShort)
 	}
 	if err != nil {
 		return nil, err
@@ -35,7 +36,8 @@ func ReadDataset[T constraints.Unsigned](
 }
 
 // Sketches a fasta file and outputs the sketches into a file.
-func CreateSketchFile[T constraints.Unsigned](inFile, outFile string, scale uint64) error {
+func CreateSketchFile[T constraints.Unsigned](
+	inFile, outFile string, scale uint64, ignoreShort bool) error {
 	var out io.Writer
 	if outFile == "" {
 		fmt.Println("No output")
@@ -54,12 +56,23 @@ func CreateSketchFile[T constraints.Unsigned](inFile, outFile string, scale uint
 	}
 
 	fmt.Println("Sketching sequences")
+	ignored := 0
 	pt := ptimer.New()
+	if ignoreShort {
+		pt = ptimer.NewFunc(func(i int) string {
+			return fmt.Sprintf("%d (ignored %d)", i, ignored)
+		})
+	}
 	for s, err := range sketchFile[T](inFile, scale) {
 		if err != nil {
 			return err
 		}
 		if len(s.h) < minSketchSize {
+			if ignoreShort {
+				ignored++
+				pt.Inc()
+				continue
+			}
 			return fmt.Errorf(
 				"sketch has %v elements, but %v are needed for accurate results: %q",
 				len(s.h), minSketchSize, s.name)
@@ -124,12 +137,19 @@ func readSketches[T constraints.Unsigned](file string) iter.Seq2[Sketch[T], erro
 // Collects sketches from an iterator,
 // validating that their scales are the same.
 func collectSketches[T constraints.Unsigned](
-	seq iter.Seq2[Sketch[T], error], index bool) (*Dataset[T], error) {
-	d := &Dataset[T]{}
+	seq iter.Seq2[Sketch[T], error], index bool, ignoreShort bool) (*Dataset[T], error) {
+	d := &Dataset[T]{
+		ignored: sets.Set[int]{},
+	}
 	if index {
 		d.idx = sketching.NewIndex[T](idxScale)
 	}
 	pt := ptimer.New()
+	if ignoreShort {
+		pt = ptimer.NewFunc(func(i int) string {
+			return fmt.Sprintf("%d (ignored %d)", i, len(d.ignored))
+		})
+	}
 	for s, err := range seq {
 		if err != nil {
 			return d, err
@@ -143,6 +163,15 @@ func collectSketches[T constraints.Unsigned](
 			}
 		}
 		if len(s.h) < minSketchSize {
+			if ignoreShort {
+				// Add an empty placeholder to keep indexes the same.
+				d.sketches = append(d.sketches, nil)
+				d.lens = append(d.lens, 0)
+				d.names = append(d.names, "")
+				d.ignored.Add(len(d.sketches) - 1)
+				pt.Inc()
+				continue
+			}
 			return nil, fmt.Errorf(
 				"sketch has %v elements, but %v are needed for accurate results: %q",
 				len(s.h), minSketchSize, s.name)

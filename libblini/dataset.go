@@ -5,6 +5,7 @@ import (
 	"iter"
 
 	"github.com/fluhus/blini/sketching"
+	"github.com/fluhus/gostuff/sets"
 	"golang.org/x/exp/constraints"
 )
 
@@ -21,6 +22,7 @@ type Dataset[T constraints.Unsigned] struct {
 	names    []string            // Sequence names.
 	scale    uint64              // Kmer selection scale.
 	idx      *sketching.Index[T] // Search index.
+	ignored  sets.Set[int]       // Serial numbers of ignored sequences.
 }
 
 // SearchResult is a single match between a query and a reference sequence.
@@ -91,4 +93,10 @@ func (d *Dataset[T]) Reindex(ii []int) {
 	for _, i := range ii {
 		d.idx.Add(d.sketches[i], i)
 	}
+}
+
+// IsIgnored returns whether the i'th sequence was ignored
+// when building this dataset.
+func (d *Dataset[T]) IsIgnored(i int) bool {
+	return d.ignored.Has(i)
 }

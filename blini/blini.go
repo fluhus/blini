@@ -28,7 +28,8 @@ var (
 	scale     = flag.Uint64("s", defaultScale, "Use 1/`scale` of the kmers")
 	unmatched = flag.Bool("u", false, "Include unmatched queries in search output")
 
-	dump *bool // An optional flag.
+	dump        *bool // An optional flag.
+	ignoreShort bool  // An optional flag.
 
 	version = "development version"
 )
@@ -67,5 +68,9 @@ func init() {
 	if withDump {
 		dump = flag.Bool("dump", false,
 			"Print pairwise distances into the output file")
+	}
+	if withIgnoreShort {
+		flag.BoolVar(&ignoreShort, "ignore-too-short", false,
+			"Ignore sequences that are too short, rather than err")
 	}
 }

@@ -18,7 +18,7 @@ func mainSearch() error {
 	fmt.Println("----------------")
 	fmt.Println("SEARCH OPERATION")
 	fmt.Println("----------------")
-	db, err := libblini.ReadDataset[hashType](*rFile, *scale, true)
+	db, err := libblini.ReadDataset[hashType](*rFile, *scale, true, ignoreShort)
 	if err != nil {
 		return err
 	}

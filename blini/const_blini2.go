@@ -3,9 +3,10 @@
 package main
 
 const (
-	experimental = false // Is this an experimental build.
-	defaultScale = 40    // Default value for the scale flag.
-	withDump     = true  // Is the distance dump feature enabled.
+	experimental    = false // Is this an experimental build.
+	defaultScale    = 40    // Default value for the scale flag.
+	withDump        = true  // Is the distance dump feature enabled.
+	withIgnoreShort = true  // Enable ignore too short sequences feature.
 
 	babiClustering   = true  // Sort by babi scores rather than by length.
 	babiPrints       = false // Print timing of babi stages.
