@@ -1,17 +1,17 @@
-//go:build blexp
+//go:build !blinix
 
 package main
 
 const (
 	// Is this an experimental build.
-	experimental = true
+	experimental = false
 
 	// Default value for the scale flag.
-	defaultScale = 40
+	defaultScale = 100
 
 	// Is the distance dump feature enabled.
-	withDump = true
+	withDump = false
 )
 
 // Size of hashes used here.
-type hashType = uint32
+type hashType = uint64
