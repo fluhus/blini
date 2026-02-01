@@ -1,4 +1,4 @@
-//go:build !blinix
+//go:build !blini2 && !blinix
 
 package main
 
