@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/fluhus/blini/libblini"
 	"github.com/fluhus/gostuff/aio"
@@ -10,10 +11,10 @@ import (
 
 // Main function for dump operation.
 func mainDump() error {
-	fmt.Println("-----------------------")
-	fmt.Println("DISTANCE DUMP OPERATION")
-	fmt.Println("-----------------------")
-	fmt.Println("Scale:", *scale)
+	fmt.Fprintln(os.Stderr, "-----------------------")
+	fmt.Fprintln(os.Stderr, "DISTANCE DUMP OPERATION")
+	fmt.Fprintln(os.Stderr, "-----------------------")
+	fmt.Fprintln(os.Stderr, "Scale:", *scale)
 
 	if *unmatched {
 		return fmt.Errorf("flag -u is for search, not for dump")
@@ -27,7 +28,7 @@ func mainDump() error {
 		return err
 	}
 
-	fmt.Println("Dumping distances")
+	fmt.Fprintln(os.Stderr, "Dumping distances")
 	fout, err := aio.Create(*oFile)
 	if err != nil {
 		return err

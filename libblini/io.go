@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"iter"
+	"os"
 	"strings"
 
 	"github.com/fluhus/biostuff/formats/fasta"
@@ -23,10 +24,10 @@ func ReadDataset[T constraints.Unsigned](
 	var d *Dataset[T]
 	var err error
 	if strings.HasSuffix(file, indexSuffix) {
-		fmt.Println("Reading prepared sketches")
+		fmt.Fprintln(os.Stderr, "Reading prepared sketches")
 		d, err = collectSketches(readSketches[T](file), index, ignoreShort)
 	} else {
-		fmt.Println("Sketching reference sequences")
+		fmt.Fprintln(os.Stderr, "Sketching reference sequences")
 		d, err = collectSketches(sketchFile[T](file, scale), index, ignoreShort)
 	}
 	if err != nil {
@@ -40,13 +41,13 @@ func CreateSketchFile[T constraints.Unsigned](
 	inFile, outFile string, scale uint64, ignoreShort bool) error {
 	var out io.Writer
 	if outFile == "" {
-		fmt.Println("No output")
+		fmt.Fprintln(os.Stderr, "No output")
 		out = io.Discard
 	} else {
 		if !strings.HasSuffix(outFile, indexSuffix) {
 			outFile += indexSuffix
 		}
-		fmt.Println("Saving to:", outFile)
+		fmt.Fprintln(os.Stderr, "Saving to:", outFile)
 		f, err := aio.Create(outFile)
 		if err != nil {
 			return err
@@ -55,7 +56,7 @@ func CreateSketchFile[T constraints.Unsigned](
 		out = f
 	}
 
-	fmt.Println("Sketching sequences")
+	fmt.Fprintln(os.Stderr, "Sketching sequences")
 	ignored := 0
 	pt := ptimer.New()
 	if ignoreShort {

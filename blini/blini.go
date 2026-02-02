@@ -39,7 +39,7 @@ func main() {
 	debug.SetGCPercent(20)
 
 	if experimental {
-		fmt.Println("Hash type:", reflect.TypeFor[hashType]())
+		fmt.Fprintln(os.Stderr, "Hash type:", reflect.TypeFor[hashType]())
 	}
 
 	var err error
@@ -52,14 +52,14 @@ func main() {
 	} else if *rFile != "" {
 		err = mainSketch()
 	} else {
-		fmt.Printf("Blini (%s)\n\n", version)
-		fmt.Println("Please select -q for clustering, -r for sketching,",
+		fmt.Fprintf(os.Stderr, "Blini (%s)\n\n", version)
+		fmt.Fprintln(os.Stderr, "Please select -q for clustering, -r for sketching,",
 			"or both for searching.")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 	if err != nil {
-		fmt.Println("ERROR:", err)
+		fmt.Fprintln(os.Stderr, "ERROR:", err)
 		os.Exit(2)
 	}
 }

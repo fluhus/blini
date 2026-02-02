@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"iter"
 	"math"
+	"os"
 	"slices"
 	"time"
 
@@ -20,11 +21,11 @@ import (
 
 // Main function for clustering operation.
 func mainCluster() error {
-	fmt.Println("--------------------")
-	fmt.Println("CLUSTERING OPERATION")
-	fmt.Println("--------------------")
-	fmt.Println("Scale:", *scale)
-	fmt.Println("Min sim:", *minSim)
+	fmt.Fprintln(os.Stderr, "--------------------")
+	fmt.Fprintln(os.Stderr, "CLUSTERING OPERATION")
+	fmt.Fprintln(os.Stderr, "--------------------")
+	fmt.Fprintln(os.Stderr, "Scale:", *scale)
+	fmt.Fprintln(os.Stderr, "Min sim:", *minSim)
 
 	if *unmatched {
 		return fmt.Errorf("flag -u is for search, not for clustering")
@@ -36,7 +37,7 @@ func mainCluster() error {
 	}
 	db.CleanIndex()
 
-	fmt.Println("Clustering")
+	fmt.Fprintln(os.Stderr, "Clustering")
 	perm := sortedPerm(db.Len(), func(a, b int) int {
 		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
 	})
@@ -85,7 +86,7 @@ func mainCluster() error {
 	checkClusterAssignment(append(clusters, ignored), db.Len())
 
 	if secondAssn {
-		fmt.Println("Improving assignments")
+		fmt.Fprintln(os.Stderr, "Improving assignments")
 		clusters = improveAssignments(db, clusters)
 		checkClusterAssignment(append(clusters, ignored), db.Len())
 	}
@@ -99,7 +100,7 @@ func mainCluster() error {
 	})
 
 	if *oFile != "" {
-		fmt.Println("Generating output")
+		fmt.Fprintln(os.Stderr, "Generating output")
 
 		// Create clusters by names.
 		byName := snm.SliceToSlice(clusters, func(c []int) []string {
@@ -140,10 +141,10 @@ func mainCluster() error {
 				reps = reps[1:]
 			}
 		}
-		fmt.Println("Cluster assignment:    ", *oFile+".json")
-		fmt.Println("Representative genomes:", *oFile+".fasta")
+		fmt.Fprintln(os.Stderr, "Cluster assignment:    ", *oFile+".json")
+		fmt.Fprintln(os.Stderr, "Representative genomes:", *oFile+".fasta")
 	} else {
-		fmt.Println("No output")
+		fmt.Fprintln(os.Stderr, "No output")
 	}
 
 	return nil
@@ -183,7 +184,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		}
 	}
 	if babiPrints {
-		fmt.Println("Babi counting took", time.Since(t))
+		fmt.Fprintln(os.Stderr, "Babi counting took", time.Since(t))
 	}
 
 	if babiIgnoreCommon {
@@ -197,7 +198,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		}
 		if babiPrints {
 			diff := before - len(cnt)
-			fmt.Printf("Babi filtering took %v, threshold %v, removed %v/%v (%.1f%%)\n",
+			fmt.Fprintf(os.Stderr, "Babi filtering took %v, threshold %v, removed %v/%v (%.1f%%)\n",
 				time.Since(t), thrsh, diff, before,
 				float64(diff)/float64(before)*100)
 		}
@@ -213,7 +214,7 @@ func babiScores(f func() iter.Seq[iter.Seq[hashType]]) []int {
 		scores = append(scores, s)
 	}
 	if babiPrints {
-		fmt.Println("Babi scoring took", time.Since(t))
+		fmt.Fprintln(os.Stderr, "Babi scoring took", time.Since(t))
 	}
 	return scores
 }

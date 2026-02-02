@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/fluhus/biostuff/formats/fasta"
 	"github.com/fluhus/blini/libblini"
@@ -15,15 +16,15 @@ import (
 
 // Main function for search operation.
 func mainSearch() error {
-	fmt.Println("----------------")
-	fmt.Println("SEARCH OPERATION")
-	fmt.Println("----------------")
+	fmt.Fprintln(os.Stderr, "----------------")
+	fmt.Fprintln(os.Stderr, "SEARCH OPERATION")
+	fmt.Fprintln(os.Stderr, "----------------")
 	db, err := libblini.ReadDataset[hashType](*rFile, *scale, true, ignoreShort)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Searching")
+	fmt.Fprintln(os.Stderr, "Searching")
 	var fout io.Writer
 	if *oFile != "" {
 		f, err := aio.Create(*oFile)

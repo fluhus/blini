@@ -2,6 +2,7 @@ package sketching
 
 import (
 	"fmt"
+	"os"
 	"slices"
 
 	"github.com/fluhus/gostuff/sets"
@@ -72,6 +73,6 @@ func (idx *Index[T]) Clean() {
 	n2 := len(idx.idx.slices)
 	idx.idx.clearSingles()
 	idx.idx.singles = maps.Clone(idx.idx.singles) // Reduce memory footprint.
-	fmt.Printf("Cleaning: %d ==> %d (%.0f%%)\n",
+	fmt.Fprintf(os.Stderr, "Cleaning: %d ==> %d (%.0f%%)\n",
 		n1, n2, float64(n2)/float64(n1)*100)
 }

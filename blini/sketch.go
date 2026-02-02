@@ -4,16 +4,17 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/fluhus/blini/libblini"
 )
 
 // Main function for sketching operation.
 func mainSketch() error {
-	fmt.Println("----------------")
-	fmt.Println("SKETCH OPERATION")
-	fmt.Println("----------------")
-	fmt.Println("Scale:", *scale)
+	fmt.Fprintln(os.Stderr, "----------------")
+	fmt.Fprintln(os.Stderr, "SKETCH OPERATION")
+	fmt.Fprintln(os.Stderr, "----------------")
+	fmt.Fprintln(os.Stderr, "Scale:", *scale)
 
 	if *unmatched {
 		return fmt.Errorf("flag -u is for search, not for sketching")
