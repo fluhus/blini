@@ -14,6 +14,10 @@ import (
 	"github.com/fluhus/gostuff/ptimer"
 )
 
+const (
+	unmatchedRef = "(unmatched)" // The "reference" value of an unmatched query.
+)
+
 // Main function for search operation.
 func mainSearch() error {
 	fmt.Fprintln(os.Stderr, "----------------")

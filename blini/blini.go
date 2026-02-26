@@ -10,14 +10,9 @@ import (
 
 /*
 TODO
-- Make ptimer output to stdout
 - Tests for sketching and for common
 - Grouping by file, by regex?
 */
-
-const (
-	unmatchedRef = "(unmatched)" // The "reference" value of an unmatched query.
-)
 
 var (
 	qFile     = flag.String("q", "", "Query file")
