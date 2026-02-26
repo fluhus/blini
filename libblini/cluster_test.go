@@ -1,8 +1,7 @@
-package main
+package libblini
 
 import (
 	"cmp"
-	"iter"
 	"slices"
 	"testing"
 )
@@ -19,23 +18,16 @@ func TestSortedPerm(t *testing.T) {
 }
 
 func TestBabiScores(t *testing.T) {
-	input := [][]hashType{
+	db := &Dataset[uint64]{}
+	db.sketches = [][]uint64{
 		{1, 4, 2},
 		{2},
 		{1, 3, 4},
 		{5, 1, 3, 2},
 	}
 	want := []int{5, 2, 4, 5}
-	got := babiScores(func() iter.Seq[iter.Seq[hashType]] {
-		return func(yield func(iter.Seq[hashType]) bool) {
-			for _, x := range input {
-				if !yield(slices.Values(x)) {
-					break
-				}
-			}
-		}
-	})
+	got := db.babiScores()
 	if !slices.Equal(got, want) {
-		t.Fatalf("babiScores(%v)=%v, want %v", input, got, want)
+		t.Fatalf("babiScores(%v)=%v, want %v", db.sketches, got, want)
 	}
 }
