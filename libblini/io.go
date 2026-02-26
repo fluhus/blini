@@ -36,7 +36,7 @@ func ReadDataset[T constraints.Unsigned](
 	return d, nil
 }
 
-// Sketches a fasta file and outputs the sketches into a file.
+// CreateSketchFile sketches a fasta file and outputs the sketches into a file.
 func CreateSketchFile[T constraints.Unsigned](
 	inFile, outFile string, scale uint64, ignoreShort bool) error {
 	var out io.Writer

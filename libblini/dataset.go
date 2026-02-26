@@ -1,4 +1,4 @@
-// Reusable code for the blini algorithm.
+// Package libblini provides reusable code for the blini algorithm.
 package libblini
 
 import (
