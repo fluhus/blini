@@ -16,14 +16,14 @@ import (
 // with minSim as the minimal similarity between each element and the cluster's
 // representative.
 // contn is whether containment should be checked rather than full match.
-func (db *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
-	db.CleanIndex()
+func (d *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
+	d.CleanIndex()
 
-	perm := sortedPerm(db.Len(), func(a, b int) int {
-		return cmp.Compare(db.Sketch(b).Len(), db.Sketch(a).Len())
+	perm := sortedPerm(d.Len(), func(a, b int) int {
+		return cmp.Compare(d.Sketch(b).Len(), d.Sketch(a).Len())
 	})
 	if babiClustering {
-		perm = db.babiSort()
+		perm = d.babiSort()
 	}
 
 	friends := 0
@@ -31,24 +31,24 @@ func (db *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
 	pt := ptimer.NewFunc(func(i int) string {
 		return fmt.Sprintf("%d (%dc %df)", i, len(clusters), friends/i)
 	})
-	done := make([]bool, db.Len())
+	done := make([]bool, d.Len())
 	var ignored []int // Keeping ignored IDs for verification.
 	for _, i := range perm {
 		if done[i] {
 			pt.Inc()
 			continue
 		}
-		if db.IsIgnored(i) {
+		if d.IsIgnored(i) {
 			ignored = append(ignored, i)
 			pt.Inc()
 			continue
 		}
 		done[i] = true
-		s := db.Sketch(i)
+		s := d.Sketch(i)
 
 		// Create cluster.
 		c := []int{i}
-		for sr := range db.SearchSketch(s, contn) {
+		for sr := range d.SearchSketch(s, contn) {
 			if done[sr.I] {
 				continue
 			}
@@ -64,12 +64,12 @@ func (db *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
 	pt.Done()
 
 	// This is an assertion. Failure means a bug in the code.
-	checkClusterAssignment(append(clusters, ignored), db.Len())
+	checkClusterAssignment(append(clusters, ignored), d.Len())
 
 	if secondAssn {
 		fmt.Fprintln(os.Stderr, "Improving assignments")
-		clusters = db.improveAssignments(clusters, contn)
-		checkClusterAssignment(append(clusters, ignored), db.Len())
+		clusters = d.improveAssignments(clusters, contn)
+		checkClusterAssignment(append(clusters, ignored), d.Len())
 	}
 
 	// Sort clusters for deterministic output.
