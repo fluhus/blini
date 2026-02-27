@@ -40,6 +40,7 @@ func (idx *Index[T]) Add(s []T, i int) {
 	}
 	upto := (len(s) + idx.scale - 1) / idx.scale
 	for _, x := range s[:upto] {
+		// BUG(fluhus): Consider making put receive a slice.
 		idx.idx.put(x, idType(i))
 	}
 }
@@ -76,6 +77,7 @@ func (idx *Index[T]) Search(s []T) []int {
 // Clean removes keys with only one element.
 // Use only for clustering.
 func (idx *Index[T]) Clean() {
+	// BUG(fluhus): Consider removing clean all together.
 	idx.idx.clean()
 }
 
