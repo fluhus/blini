@@ -186,5 +186,11 @@ func collectSketches[T constraints.Unsigned](
 		pt.Inc()
 	}
 	pt.Done()
+	if index {
+		fmt.Println("Finalizing index")
+		pt := ptimer.New()
+		d.idx.Finalize()
+		pt.Done()
+	}
 	return d, nil
 }

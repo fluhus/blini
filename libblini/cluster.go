@@ -49,6 +49,7 @@ func (d *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
 		// Create cluster.
 		c := []int{i}
 		for sr := range d.SearchSketch(s, contn) {
+			friends++
 			if done[sr.I] {
 				continue
 			}

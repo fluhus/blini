@@ -92,6 +92,7 @@ func (d *Dataset[T]) reindex(ii []int) {
 	for _, i := range ii {
 		d.idx.Add(d.sketches[i], i)
 	}
+	d.idx.Finalize()
 }
 
 // IsIgnored returns whether the i'th sequence was ignored
