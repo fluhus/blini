@@ -1,8 +1,9 @@
 package sketching
 
 import (
+	"cmp"
 	"fmt"
-	"os"
+	"iter"
 	"slices"
 
 	"github.com/fluhus/gostuff/sets"
@@ -14,14 +15,20 @@ type idType = uint32
 
 // Index allows quick lookups for sketches.
 type Index[T constraints.Unsigned] struct {
-	idx   svmap[T, idType]
+	idx   hashIndex[T, idType]
 	scale int
 }
 
 // NewIndex returns a new index that stores 1/scale of hashes.
 func NewIndex[T constraints.Unsigned](scale int) *Index[T] {
+	var idx hashIndex[T, idType]
+	if useFlatMapIndex {
+		idx = &flatmap[T, idType]{}
+	} else {
+		idx = newSVMap[T, idType]()
+	}
 	return &Index[T]{
-		idx:   newSVMap[T, idType](),
+		idx:   idx,
 		scale: scale,
 	}
 }
@@ -69,10 +76,18 @@ func (idx *Index[T]) Search(s []T) []int {
 // Clean removes keys with only one element.
 // Use only for clustering.
 func (idx *Index[T]) Clean() {
-	n1 := len(idx.idx.singles)
-	n2 := len(idx.idx.slices)
-	idx.idx.clearSingles()
-	idx.idx.singles = maps.Clone(idx.idx.singles) // Reduce memory footprint.
-	fmt.Fprintf(os.Stderr, "Cleaning: %d ==> %d (%.0f%%)\n",
-		n1, n2, float64(n2)/float64(n1)*100)
+	idx.idx.clean()
+}
+
+// Finalize runs final processing after adding data and before using the index.
+func (idx *Index[T]) Finalize() {
+	idx.idx.finalize()
+}
+
+// A common interface for the index data structures.
+type hashIndex[K cmp.Ordered, V any] interface {
+	put(K, V)          // Adds a hash to an ID.
+	get(K) iter.Seq[V] // Returns an iterator of IDs for a hash.
+	clean()            // Cleans up before clustering.
+	finalize()         // Finalize index construction before use.
 }

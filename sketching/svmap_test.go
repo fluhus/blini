@@ -28,7 +28,7 @@ func TestSVMap(t *testing.T) {
 			t.Errorf("get(%d)=%d, want %d", test.k, got, test.want)
 		}
 	}
-	s.clearSingles()
+	s.clean()
 	for _, test := range tests {
 		if got := slices.Collect(s.get(test.k)); !slices.Equal(got, test.wantClear) {
 			t.Errorf("get(%d)=%d, want %d", test.k, got, test.wantClear)
