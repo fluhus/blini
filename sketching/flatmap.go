@@ -1,10 +1,10 @@
 package sketching
 
 import (
-	"fmt"
 	"iter"
 	"slices"
 
+	"github.com/fluhus/gostuff/snm"
 	"golang.org/x/exp/constraints"
 )
 
@@ -52,13 +52,14 @@ func (f *flatmap[K, V]) get(k K) iter.Seq[V] {
 
 // Sorts the slice for binary search.
 func (f *flatmap[K, V]) finalize() {
-	var lens, caps int
 	for i := range f.k {
 		sort2(f.k[i], f.v[i])
-		lens += len(f.k[i])
-		caps += cap(f.k[i])
+
+		// Reallocate because dynamically grown slices can theoretically
+		// take up to twice their length.
+		f.k[i] = snm.TightClone(f.k[i])
+		f.v[i] = snm.TightClone(f.v[i])
 	}
-	fmt.Printf("%d / %d (%.2f)\n", caps, lens, float64(caps)/float64(lens))
 }
 
 var _ hashIndex[uint, int] = &flatmap[uint, int]{}
