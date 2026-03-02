@@ -11,6 +11,13 @@ import (
 	"golang.org/x/exp/maps"
 )
 
+const (
+	useSVMapIndex = iota
+	useFlatMapIndex
+	useFlatMap2Index
+	useFlatMap3Index
+)
+
 type idType = uint32
 
 // Index allows quick lookups for sketches.
@@ -22,10 +29,15 @@ type Index[T constraints.Unsigned] struct {
 // NewIndex returns a new index that stores 1/scale of hashes.
 func NewIndex[T constraints.Unsigned](scale int) *Index[T] {
 	var idx hashIndex[T, idType]
-	if useFlatMapIndex {
-		idx = &flatmap[T, idType]{}
-	} else {
+	switch indexType {
+	case useSVMapIndex:
 		idx = newSVMap[T, idType]()
+	case useFlatMapIndex:
+		idx = &flatmap[T, idType]{}
+	case useFlatMap2Index:
+		idx = &flatmap2[T, idType]{}
+	case useFlatMap3Index:
+		idx = newFlatmap3[T, idType]()
 	}
 	return &Index[T]{
 		idx:   idx,

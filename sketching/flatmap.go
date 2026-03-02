@@ -28,7 +28,7 @@ func (f *flatmap[K, V]) put(k K, v V) {
 }
 
 // Returns an iterator over the values of k.
-func (f flatmap[K, V]) get(k K) iter.Seq[V] {
+func (f *flatmap[K, V]) get(k K) iter.Seq[V] {
 	return func(yield func(V) bool) {
 		i, _ := slices.BinarySearchFunc(f.s, flatmapEntry[K, V]{k: k}, cmpEntries)
 		for _, e := range f.s[i:] {

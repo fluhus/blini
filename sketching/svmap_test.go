@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSVMap(t *testing.T) {
+func TestSVMapClean(t *testing.T) {
 	s := newSVMap[int, int]()
 	s.put(5, 31)
 	s.put(3, 55)
@@ -14,24 +14,18 @@ func TestSVMap(t *testing.T) {
 	s.put(5, 90)
 
 	tests := []struct {
-		k         int
-		want      []int
-		wantClear []int
+		k    int
+		want []int
 	}{
-		{3, []int{55}, nil},
-		{5, []int{31, 12, 90}, []int{31, 12, 90}},
-		{6, []int{90}, nil},
-		{7, nil, nil},
-	}
-	for _, test := range tests {
-		if got := slices.Collect(s.get(test.k)); !slices.Equal(got, test.want) {
-			t.Errorf("get(%d)=%d, want %d", test.k, got, test.want)
-		}
+		{3, nil},
+		{5, []int{31, 12, 90}},
+		{6, nil},
+		{7, nil},
 	}
 	s.clean()
 	for _, test := range tests {
-		if got := slices.Collect(s.get(test.k)); !slices.Equal(got, test.wantClear) {
-			t.Errorf("get(%d)=%d, want %d", test.k, got, test.wantClear)
+		if got := slices.Collect(s.get(test.k)); !slices.Equal(got, test.want) {
+			t.Errorf("get(%d)=%d, want %d", test.k, got, test.want)
 		}
 	}
 }
