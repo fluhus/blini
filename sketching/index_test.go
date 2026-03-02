@@ -7,10 +7,7 @@ import (
 
 func TestHashIndex(t *testing.T) {
 	idxs := []hashIndex[uint, uint]{
-		newSVMap[uint, uint](),
-		&flatmap[uint, uint]{},
-		&flatmap2[uint, uint]{},
-		newFlatmap3[uint, uint](),
+		newFlatmap[uint, uint](),
 	}
 
 	for _, idx := range idxs {
