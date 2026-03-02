@@ -62,15 +62,6 @@ func (d *Dataset[T]) SearchSketch(s *Sketch[T], contn bool) iter.Seq[SearchResul
 	}
 }
 
-// CleanIndex removes singletons from the index.
-// Used in clustering operations to reduce memory consumption.
-func (d *Dataset[T]) CleanIndex() {
-	if d.idx == nil {
-		panic("this dataset was created with no search index")
-	}
-	d.idx.Clean()
-}
-
 // Sketch returns a clone of the i'th sketch.
 func (d *Dataset[T]) Sketch(i int) *Sketch[T] {
 	return &Sketch[T]{

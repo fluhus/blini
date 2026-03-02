@@ -61,7 +61,4 @@ func (f *flatmap[K, V]) finalize() {
 	fmt.Printf("%d / %d (%.2f)\n", caps, lens, float64(caps)/float64(lens))
 }
 
-// No-op.
-func (f *flatmap[K, V]) clean() {}
-
 var _ hashIndex[uint, int] = &flatmap[uint, int]{}

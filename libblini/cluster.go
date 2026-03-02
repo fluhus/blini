@@ -17,8 +17,6 @@ import (
 // representative.
 // contn is whether containment should be checked rather than full match.
 func (d *Dataset[T]) Cluster(minSim float64, contn bool) [][]int {
-	d.CleanIndex()
-
 	perm := sortedPerm(d.Len(), func(a, b int) int {
 		return cmp.Compare(d.Sketch(b).Len(), d.Sketch(a).Len())
 	})

@@ -68,13 +68,6 @@ func (idx *Index[T]) Search(s []T) []int {
 	return maps.Keys(set)
 }
 
-// Clean removes keys with only one element.
-// Use only for clustering.
-func (idx *Index[T]) Clean() {
-	// BUG(fluhus): Consider removing clean all together.
-	idx.idx.clean()
-}
-
 // Finalize runs final processing after adding data and before using the index.
 func (idx *Index[T]) Finalize() {
 	idx.idx.finalize()
@@ -85,6 +78,5 @@ func (idx *Index[T]) Finalize() {
 type hashIndex[K cmp.Ordered, V any] interface {
 	put(K, V)          // Adds a hash to an ID.
 	get(K) iter.Seq[V] // Returns an iterator of IDs for a hash.
-	clean()            // Cleans up before clustering.
 	finalize()         // Finalize index construction before use.
 }
