@@ -10,6 +10,7 @@ func sort2[T cmp.Ordered, S any](a []T, b []S) {
 	sort.Sort(&sort2t[T, S]{a, b})
 }
 
+// Implements [sort.Interface] for the [sort2] function.
 type sort2t[T cmp.Ordered, S any] struct {
 	a []T
 	b []S

@@ -18,6 +18,7 @@ type flatmap[K constraints.Unsigned, V any] struct {
 	v [][]V
 }
 
+// Returns a newly allocated flatmap.
 func newFlatmap[K constraints.Unsigned, V any]() *flatmap[K, V] {
 	return &flatmap[K, V]{
 		k: make([][]K, flatmapSize),

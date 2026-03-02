@@ -6,6 +6,7 @@ import (
 )
 
 func TestHashIndex(t *testing.T) {
+	// New index structures can be added here.
 	idxs := []hashIndex[uint, uint]{
 		newFlatmap[uint, uint](),
 	}
