@@ -64,6 +64,7 @@ func CreateSketchFile[T constraints.Unsigned](
 			return fmt.Sprintf("%d (ignored %d)", i, ignored)
 		})
 	}
+	defer pt.Done()
 	for s, err := range sketchFile[T](inFile, scale) {
 		if err != nil {
 			return err
@@ -83,7 +84,6 @@ func CreateSketchFile[T constraints.Unsigned](
 		}
 		pt.Inc()
 	}
-	pt.Done()
 	return nil
 }
 
@@ -153,12 +153,14 @@ func collectSketches[T constraints.Unsigned](
 	}
 	for s, err := range seq {
 		if err != nil {
+			pt.Done()
 			return d, err
 		}
 		if len(d.sketches) == 0 {
 			d.scale = s.scale
 		} else {
 			if s.scale != d.scale {
+				pt.Done()
 				return d, fmt.Errorf("mismatching scales: %d, %d",
 					d.scale, s.scale)
 			}
@@ -173,6 +175,7 @@ func collectSketches[T constraints.Unsigned](
 				pt.Inc()
 				continue
 			}
+			pt.Done()
 			return nil, fmt.Errorf(
 				"sketch has %v elements, but %v are needed for accurate results: %q",
 				len(s.h), minSketchSize, s.name)
