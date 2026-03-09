@@ -63,4 +63,4 @@ func (f *flatmap[K, V]) finalize() {
 	}
 }
 
-var _ hashIndex[uint, int] = &flatmap[uint, int]{}
+var _ hashIndex[uint, int] = (*flatmap[uint, int])(nil)
