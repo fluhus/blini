@@ -61,8 +61,8 @@ func main() {
 
 func init() {
 	if withDump {
-		flag.BoolVar(&dump, "dump", false,
-			"Print pairwise distances into the output file")
+		flag.BoolVar(&dump, "d", false,
+			"With -q, instead of clustering print pairwise distances into the output file")
 	}
 	if withIgnoreShort {
 		flag.BoolVar(&ignoreShort, "ignore-too-short", false,
