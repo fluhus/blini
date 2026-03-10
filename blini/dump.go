@@ -17,7 +17,7 @@ func mainDump() error {
 	fmt.Fprintln(os.Stderr, "Scale:", *scale)
 
 	if *unmatched {
-		return fmt.Errorf("flag -u is for search, not for dump")
+		return fmt.Errorf("flag -u is for search, not for distance dump")
 	}
 	if *oFile == "" {
 		return fmt.Errorf("no output file given")
