@@ -22,8 +22,7 @@ blini -q query.fasta -r reference.fasta -o output.csv
 blini -q query.fasta -r reference.blini -o output.csv
 ```
 
-<details>
-<summary>Output file format</summary>
+**Output**
 
 ```
 similarity,query,reference
@@ -36,8 +35,6 @@ The first row is always `similarity,query,reference`
 and then a row for each match between a query sequence and a reference
 sequence that passed the similarity threshold.
 There can be several matches per query, and several matches per reference.
-
-</details>
 
 ### Sketching
 
@@ -58,10 +55,9 @@ blini -q input.fasta -o output_prefix
 ```
 
 The outputs are a fasta file with the representatives,
-and a JSON file with the cluster assignments.
+and a JSON file with the cluster assignments (numbers are 0-based).
 
-<details>
-<summary>JSON file format</summary>
+**JSON file format**
 
 ```json
 {
@@ -81,17 +77,40 @@ with each cluster's representative first.
 The `byNumber` value is the same, with the index of each sequence
 in the input.
 
-</details>
+### Distance dumping
+
+With `-q` and `-d`, Blini prints out a pairwise distance triangle
+to the output file instead of clustering.
+
+```sh
+blini -q query.fasta -d -o output.txt
+```
+
+The output is a [squareform]-shaped vector of distances.
+The order is: (1,2) (1,3) ... (1,n) (2,3) (2,4) ... (2,n) ...
+(n-2,n-1) (n-2,n) (n-1,n).
+
+[squareform]: https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.squareform.html
+
+**Output file**
+
+```
+0.1
+1
+0.89
+...
+```
 
 ### Other options
 
 * `-h` display help on the available flags.
-* `-c` for searching, calculate containment of query in the reference
-  rather than full match.
-* `-m` for searching and clustering,
-  minimal similarity for a match.
 * `-s` scale; use 1/s of kmers for similarity.
+* `-c` for search, calculate containment of query in the reference
+  rather than full match.
+* `-m` for search and clustering,
+  minimal similarity for a match.
 * `-u` for search, include unmatched queries in the output.
+* `-ignore-too-short` ignore sequences with too small sketches.
 
 ## Usage (advanced)
 
@@ -105,8 +124,8 @@ Doubling the scale halves RAM and CPU usage, but also loses some accuracy.
 For accurate results, sketches of size 25 and above are needed.
 This means that the scale needs to be up to `sequence length / 25`.
 
-The default scale of 100 is effective for sequences of length 2500 and above.
-For sequences of length 1000, for example, the scale needs to be at most 40.
+The default scale of 40 is effective for sequences of length 1000 and above.
+For sequences of length 500, for example, the scale needs to be at most 20.
 
 ### Parallelizing reference sketching
 
