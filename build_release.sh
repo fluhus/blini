@@ -2,18 +2,18 @@
 
 set -e
 
-VERSION=v1.1.0
-VERSION2=v2.0.0
+VERSION=v2.0.0
+VERSION1=v1.1.0
 
 EXE=blini
 OUTDIR=../release
 TAGS=
-SUFFIX=
+SUFFIX=2
 
-if [ "$1" == "2" ]; then
-  VERSION=$VERSION2
-  TAGS="-tags=blini2"
-  SUFFIX=2
+if [ "$1" == "1" ]; then
+  VERSION=$VERSION1
+  TAGS="-tags=blini1"
+  SUFFIX=
 fi
 
 FLAGS="-ldflags=-s -X main.version=$VERSION"

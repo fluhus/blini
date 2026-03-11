@@ -1,4 +1,4 @@
-//go:build !blinix && !blini2
+//go:build blini1
 
 package libblini
 

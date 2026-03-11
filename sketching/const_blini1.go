@@ -1,4 +1,4 @@
-//go:build !blini2 && !blinix
+//go:build blini1
 
 package sketching
 
