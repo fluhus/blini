@@ -76,8 +76,10 @@ func CreateSketchFile[T constraints.Unsigned](
 				continue
 			}
 			return fmt.Errorf(
-				"sketch has %v elements, but %v are needed for accurate results: %q",
-				len(s.h), minSketchSize, s.name)
+				"%q\nsketch has %v elements, but %v are needed for accurate results"+
+					"; to avoid this error decrease scale or use the -ignore-too-short"+
+					" flag",
+				s.name, len(s.h), minSketchSize)
 		}
 		if err := bnry.Write(out, s.h, s.ln, s.name, s.scale); err != nil {
 			return err
@@ -177,8 +179,10 @@ func collectSketches[T constraints.Unsigned](
 			}
 			pt.Done()
 			return nil, fmt.Errorf(
-				"sketch has %v elements, but %v are needed for accurate results: %q",
-				len(s.h), minSketchSize, s.name)
+				"%q\nsketch has %v elements, but %v are needed for accurate results"+
+					"; to avoid this error decrease scale or use the -ignore-too-short"+
+					" flag",
+				s.name, len(s.h), minSketchSize)
 		}
 		d.sketches = append(d.sketches, s.h)
 		d.lens = append(d.lens, s.ln)
