@@ -38,12 +38,12 @@ jobs:
       run: |
         rm -fr tmp
         go install -tags blini2 ./blini
-        sh testdata/run_blini.sh
+        sh testdata/run_blini.sh 2
         go run ./testdata/test
 
     - name: Run Test Data (experimental)
       run: |
         rm -fr tmp
         go install -tags blinix ./blini
-        sh testdata/run_blini.sh
+        sh testdata/run_blini.sh 2
         go run ./testdata/test

@@ -39,8 +39,7 @@ func mainDump() error {
 	nd := n * (n - 1) / 2
 	pt := ptimer.NewMessage(fmt.Sprint("{}/", nd))
 	for i := range n {
-		for jj := range n - i - 1 {
-			j := jj + i + 1
+		for j := i + 1; j < n; j++ {
 			d := 1 - db.Sketch(i).Similarity(db.Sketch(j), false)
 			fmt.Fprintln(fout, d)
 			pt.Inc()

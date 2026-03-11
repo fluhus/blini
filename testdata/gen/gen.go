@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"math/rand/v2"
+	"slices"
 
 	"github.com/fluhus/biostuff/formats/fasta"
 	"github.com/fluhus/blini/paper/simul"
@@ -19,6 +20,9 @@ func main() {
 		panic(err)
 	}
 	if err := genSearchData(); err != nil {
+		panic(err)
+	}
+	if err := genDumpData(); err != nil {
 		panic(err)
 	}
 }
@@ -62,7 +66,7 @@ func genClustData() error {
 	defer fout.Close()
 	for _, fa := range fas {
 		if err := fa.Write(fout); err != nil {
-			return nil
+			return err
 		}
 	}
 	return nil
@@ -120,7 +124,7 @@ func genSearchData() error {
 	defer rout.Close()
 	for _, fa := range refs {
 		if err := fa.Write(rout); err != nil {
-			return nil
+			return err
 		}
 	}
 
@@ -131,8 +135,41 @@ func genSearchData() error {
 	defer qout.Close()
 	for _, fa := range queries {
 		if err := fa.Write(qout); err != nil {
-			return nil
+			return err
 		}
+	}
+	return nil
+}
+
+// Generates dummy data for testing the distance-dump function.
+func genDumpData() error {
+	const (
+		seqLen  = 10000
+		mutPerc = 2
+		mutNucs = seqLen * mutPerc / 100
+	)
+	s := newSNPer(seqLen)
+	a := simul.RandSeq(seqLen)
+	b := s.mutate(a, mutNucs)
+	c := s.mutate(a, mutNucs)
+	d := s.mutate(b, mutNucs)
+
+	out, err := aio.Create(outDir + "/dump.fa.zst")
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+	if err := (&fasta.Fasta{[]byte("a"), a}).Write(out); err != nil {
+		return err
+	}
+	if err := (&fasta.Fasta{[]byte("b"), b}).Write(out); err != nil {
+		return err
+	}
+	if err := (&fasta.Fasta{[]byte("c"), c}).Write(out); err != nil {
+		return err
+	}
+	if err := (&fasta.Fasta{[]byte("d"), d}).Write(out); err != nil {
+		return err
 	}
 	return nil
 }
@@ -142,4 +179,22 @@ func shuffle[T any](a []T) {
 	rand.Shuffle(len(a), func(i, j int) {
 		a[i], a[j] = a[j], a[i]
 	})
+}
+
+// Creates mutually exclusive SNPs.
+type snper struct {
+	p []int
+}
+
+func newSNPer(n int) *snper {
+	return &snper{rand.Perm(n)}
+}
+
+func (s *snper) mutate(b []byte, n int) []byte {
+	b = slices.Clone(b)
+	for _, i := range s.p[:n] {
+		b[i] = simul.MutNuc(b[i])
+	}
+	s.p = s.p[n:]
+	return b
 }

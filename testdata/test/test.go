@@ -4,11 +4,16 @@ package main
 import (
 	"cmp"
 	"fmt"
+	"os"
 	"regexp"
 	"slices"
+	"strconv"
+	"strings"
 
 	"github.com/fluhus/biostuff/formats/fasta"
 	"github.com/fluhus/gostuff/csvx"
+	"github.com/fluhus/gostuff/gnum"
+	"github.com/fluhus/gostuff/iterx"
 	"github.com/fluhus/gostuff/jio"
 	"golang.org/x/exp/maps"
 )
@@ -35,6 +40,9 @@ func main() {
 		panic(err)
 	}
 	if err := testSearch(resultsDir+"/search2_u.csv", true); err != nil {
+		panic(err)
+	}
+	if err := testDump(); err != nil {
 		panic(err)
 	}
 	fmt.Println("OK!")
@@ -148,6 +156,42 @@ func testSearch(file string, unmatched bool) error {
 		return fmt.Errorf("unexpected queries: %q", gotQueries)
 	}
 
+	return nil
+}
+
+func testDump() error {
+	const tolerance = 0.0021
+	const file = resultsDir + "/dump.txt"
+
+	if _, err := os.Stat(file); err != nil {
+		// File missing is ok for blini1.
+		if strings.HasSuffix(err.Error(), "no such file or directory") {
+			fmt.Println("Dump file missing. Continuing...")
+			return nil
+		}
+		return err
+	}
+
+	want := []float64{0.02, 0.02, 0.04, 0.04, 0.02, 0.06}
+	var got []float64
+	for line, err := range iterx.LinesFile(file) {
+		if err != nil {
+			return err
+		}
+		x, err := strconv.ParseFloat(line, 64)
+		if err != nil {
+			return err
+		}
+		got = append(got, x)
+	}
+	if len(got) != len(want) {
+		return fmt.Errorf("bad result length: %d, want %v", len(got), len(want))
+	}
+	for i := range got {
+		if gnum.Diff(got[i], want[i]) > tolerance {
+			return fmt.Errorf("got[%d]=%f, want %f", i, got[i], want[i])
+		}
+	}
 	return nil
 }
 
