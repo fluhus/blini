@@ -27,17 +27,17 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - name: Run Test Data
+    - name: Run Test Data (blini1)
       run: |
         rm -fr tmp
-        go install ./blini
+        go install -tags blini1 ./blini
         bash testdata/run_blini.sh
         go run ./testdata/test
 
     - name: Run Test Data (blini2)
       run: |
         rm -fr tmp
-        go install -tags blini2 ./blini
+        go install ./blini
         bash testdata/run_blini.sh 2
         go run ./testdata/test
 
