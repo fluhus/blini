@@ -73,10 +73,17 @@ func (idx *Index[T]) Finalize() {
 	idx.idx.finalize()
 }
 
+// NVals returns an iterator over pairs of key and number of values
+// in that key. Used for BaBi clustering.
+func (idx *Index[T]) NVals() iter.Seq2[T, int] {
+	return idx.idx.nvals()
+}
+
 // A common interface for the index data structures.
 // Used for testing different indexes.
 type hashIndex[K cmp.Ordered, V any] interface {
-	put(K, V)          // Adds a hash to an ID.
-	get(K) iter.Seq[V] // Returns an iterator of IDs for a hash.
-	finalize()         // Finalize index construction before use.
+	put(K, V)                 // Adds a hash to an ID.
+	get(K) iter.Seq[V]        // Returns an iterator of IDs for a hash.
+	finalize()                // Finalize index construction before use.
+	nvals() iter.Seq2[K, int] // Returns the number of values per key.
 }

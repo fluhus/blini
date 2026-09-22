@@ -9,4 +9,5 @@ const (
 	babiPrints       = false // Print timing of babi stages.
 	babiIgnoreCommon = true  // Ignore too common elements.
 	secondAssn       = false // Run a second round of cluster assignments.
+	babiCountFromIdx = false // Count hash appearances from index rather than from sketches.
 )

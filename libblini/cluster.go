@@ -3,6 +3,7 @@ package libblini
 import (
 	"cmp"
 	"fmt"
+	"maps"
 	"math"
 	"os"
 	"slices"
@@ -100,11 +101,24 @@ func (d *Dataset[T]) babiSort() []int {
 func (d *Dataset[T]) babiScores() []int {
 	t := time.Now()
 	cnt := map[T]int{}
-	n := 0
-	for _, sketch := range d.sketches {
-		n++
-		for _, h := range sketch {
-			cnt[h]++
+	if babiCountFromIdx {
+		if babiPrints {
+			fmt.Println("Babi count from INDEX")
+		}
+		n := 0
+		for range d.idx.NVals() {
+			n++
+		}
+		if babiPrints {
+			fmt.Println("Babi count map size:", n)
+		}
+		cnt = make(map[T]int, n)
+		maps.Insert(cnt, d.idx.NVals())
+	} else {
+		for _, sketch := range d.sketches {
+			for _, h := range sketch {
+				cnt[h]++
+			}
 		}
 	}
 	if babiPrints {
@@ -114,7 +128,7 @@ func (d *Dataset[T]) babiScores() []int {
 	if babiIgnoreCommon {
 		t := time.Now()
 		before := len(cnt)
-		thrsh := int(math.Round(math.Pow(float64(n), 0.9)))
+		thrsh := int(math.Round(math.Pow(float64(len(d.sketches)), 0.9)))
 		for k, v := range cnt {
 			if v > thrsh {
 				delete(cnt, k)
@@ -130,10 +144,14 @@ func (d *Dataset[T]) babiScores() []int {
 	}
 
 	t = time.Now()
-	scores := make([]int, 0, n)
+	scores := make([]int, 0, len(d.sketches))
 	for _, sketch := range d.sketches {
 		s := 0
-		for _, h := range sketch {
+		upto := len(sketch)
+		if babiCountFromIdx {
+			upto = (len(sketch) + idxScale - 1) / idxScale
+		}
+		for _, h := range sketch[:upto] {
 			s += cnt[h] - 1
 		}
 		scores = append(scores, s)

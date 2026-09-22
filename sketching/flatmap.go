@@ -63,4 +63,31 @@ func (f *flatmap[K, V]) finalize() {
 	}
 }
 
+func (f *flatmap[K, V]) nvals() iter.Seq2[K, int] {
+	return func(yield func(K, int) bool) {
+		for _, s := range f.k {
+			if len(s) == 0 {
+				continue
+			}
+			nv := 0
+			last := s[0]
+			for _, k := range s {
+				if k == last {
+					nv++
+				} else {
+					if !yield(last, nv) {
+						return
+					}
+					last = k
+					nv = 1
+				}
+			}
+			// There is last because s is non-empty.
+			if !yield(last, nv) {
+				return
+			}
+		}
+	}
+}
+
 var _ hashIndex[uint, int] = (*flatmap[uint, int])(nil)
