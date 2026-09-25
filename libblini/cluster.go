@@ -9,6 +9,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/fluhus/gostuff/bits"
 	"github.com/fluhus/gostuff/ptimer"
 	"github.com/fluhus/gostuff/snm"
 )
@@ -165,15 +166,21 @@ func (d *Dataset[T]) babiScores() []int {
 // Checks that the clusters include all the numbers from 0 to n-1
 // and with no repetitions.
 func checkClusterAssignment(clusters [][]int, n int) {
-	all := snm.Sorted(slices.Concat(clusters...))
-	if len(all) != n {
-		panic(fmt.Sprintf("bad number of elements: %v, want %v",
-			len(all), n))
-	}
-	for i, x := range all {
-		if x != i {
-			panic(fmt.Sprintf("bad element: %v, want %v", x, i))
+	found := make([]byte, (n+7)/8)
+	for _, c := range clusters {
+		for _, i := range c {
+			if i < 0 || i >= n {
+				panic(fmt.Sprintf("element out of range: %v, want 0-%v", i, n-1))
+			}
+			if bits.Get(found, i) == 1 {
+				panic(fmt.Sprintf("duplicate element: %v", i))
+			}
+			bits.Set(found, i, true)
 		}
+	}
+	if s := bits.Sum(found); s != n {
+		panic(fmt.Sprintf("bad number of elements: %v, want %v",
+			s, n))
 	}
 }
 
