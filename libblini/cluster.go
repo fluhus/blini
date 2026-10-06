@@ -150,7 +150,7 @@ func (d *Dataset[T]) babiScores() []int {
 		s := 0
 		upto := len(sketch)
 		if babiCountFromIdx {
-			upto = (len(sketch) + idxScale - 1) / idxScale
+			upto = (len(sketch) + d.idx.Scale() - 1) / d.idx.Scale()
 		}
 		for _, h := range sketch[:upto] {
 			s += cnt[h] - 1

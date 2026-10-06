@@ -79,6 +79,12 @@ func (idx *Index[T]) NVals() iter.Seq2[T, int] {
 	return idx.idx.nvals()
 }
 
+// Scale returns the index's scale, which is one of how many
+// hashes is used for indexing.
+func (idx *Index[T]) Scale() int {
+	return idx.scale
+}
+
 // A common interface for the index data structures.
 // Used for testing different indexes.
 type hashIndex[K cmp.Ordered, V any] interface {

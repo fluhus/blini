@@ -4,6 +4,8 @@ import (
 	"cmp"
 	"slices"
 	"testing"
+
+	"github.com/fluhus/blini/sketching"
 )
 
 func TestSortedPerm(t *testing.T) {
@@ -20,10 +22,14 @@ func TestSortedPerm(t *testing.T) {
 func TestBabiScores(t *testing.T) {
 	db := &Dataset[uint64]{}
 	db.sketches = [][]uint64{
-		{1, 4, 2},
+		{1, 2, 4},
 		{2},
 		{1, 3, 4},
-		{5, 1, 3, 2},
+		{1, 2, 3, 5},
+	}
+	db.idx = sketching.NewIndex[uint64](1)
+	for i, s := range db.sketches {
+		db.idx.Add(s, i)
 	}
 	want := []int{5, 2, 4, 5}
 	got := db.babiScores()
